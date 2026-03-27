@@ -13,3 +13,10 @@
 
 #### Limitations:
 - For now it is single word search, later improved to Multi-word search
+
+#### To run:
+1. Fork the repository
+2. pip install -r requirements.txt
+3. uvicorn app.main:app --reload
+
+## Thankyou
