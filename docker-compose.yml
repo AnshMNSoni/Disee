@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  node1:
+    build: .
+    container_name: node1
+    environment:
+      - NODE_ID=node1
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8001:8000"
+
+  node2:
+    build: .
+    container_name: node2
+    environment:
+      - NODE_ID=node2
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8002:8000"
+
+  node3:
+    build: .
+    container_name: node3
+    environment:
+      - NODE_ID=node3
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8003:8000"
+
+  gateway:
+    build: .
+    container_name: gateway
+    command: uvicorn app.gateway.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - node1
+      - node2
+      - node3
