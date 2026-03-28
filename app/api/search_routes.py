@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 from app.services.search_services import search
 
-router = APIRouter(prefix="/serach", tags=["Search"])
+router = APIRouter(prefix="/search", tags=["Search"])
 
 @router.get("/")
 def search_query(q: str = Query(...)):
