@@ -1,6 +1,4 @@
-# Search Engine Project
-🟢 Status: Active
-
+# Distributed Search Engine Project
 
 ## Phase: 1 (Single Node Single Machine)
 
