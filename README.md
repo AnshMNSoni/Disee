@@ -25,4 +25,3 @@
 3. docker-compose up --build
 4. Visit: http://localhost:8000/docs/
 
-## Thankyou
