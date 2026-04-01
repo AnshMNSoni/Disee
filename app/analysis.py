@@ -50,7 +50,7 @@ for storage_path in storage_paths:
             })
 
 df = pd.DataFrame(data_list)
-df.to_csv("corpus_metrics.csv", index=False)
+df.to_csv("data_interpretation/corpus_metrics.csv", index=False)
 
 files = [os.path.join(storage_path, filename) for storage_path in storage_paths for filename in os.listdir(storage_path) if os.path.isfile(os.path.join(storage_path, filename))]
 
@@ -64,7 +64,7 @@ plt.hist(df['word_count'], bins=10, color='skyblue', edgecolor='black')
 plt.title("Histogram of Document Word Counts")
 plt.xlabel("Total Words")
 plt.ylabel("Frequency")
-plt.savefig("dist_histogram.png")
+plt.savefig("data_interpretation/dist_histogram.png")
 plt.close()
 
 # Box Plot & Violin Plot: Lexical Diversity and Stopword Ratio
@@ -75,7 +75,7 @@ plt.subplot(1, 2, 2)
 sns.violinplot(y=df['stopword_ratio'], color='gold')
 plt.title("Violin Plot: Stopword Ratio")
 plt.tight_layout()
-plt.savefig("box_violin_metrics.png")
+plt.savefig("data_interpretation/box_violin_metrics.png")
 plt.close()
 
 # Regression Plot: Heaps' Law (Word Count vs Unique Word Count)
@@ -83,14 +83,14 @@ sns.regplot(data=df, x="word_count", y="unique_word_count", scatter_kws={'alpha'
 plt.title("Regression Plot: Heaps' Law (Unique vs Total Words)")
 plt.xlabel("Total Word Count")
 plt.ylabel("Unique Word Count")
-plt.savefig("heaps_law_regression.png")
+plt.savefig("data_interpretation/heaps_law_regression.png")
 plt.close()
 
 # Pair Plot: Multivariate Relationships
 # Note: Pairplot creates its own figure
 g = sns.pairplot(df.drop(columns=['filename']))
 g.fig.suptitle("Pair Plot of Corpus Metrics", y=1.02)
-g.savefig("pair_plot.png")
+g.savefig("data_interpretation/pair_plot.png")
 plt.close()
 
 # Heatmap: Term-Document Matrix (Top 20 terms across first 20 docs)
@@ -109,7 +109,7 @@ plt.xlabel("Terms")
 plt.ylabel("Documents")
 plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
-plt.savefig("term_doc_heatmap.png")
+plt.savefig("data_interpretation/term_doc_heatmap.png")
 plt.close()
 
 # Bar Plot: Average Sentence Length per Document (Top 15)
@@ -119,13 +119,13 @@ plt.title("Bar Plot: Top 15 Docs by Avg Sentence Length")
 plt.xlabel("Average Sentence Length")
 plt.ylabel("Document")
 plt.tight_layout()
-plt.savefig("sentence_len_bar.png")
+plt.savefig("data_interpretation/sentence_len_bar.png")
 plt.close()
 
 # Scatter Plot: Lexical Diversity vs Stopword Ratio
 sns.scatterplot(data=df, x="lexical_diversity", y="stopword_ratio", hue="word_count", size="word_count", sizes=(20, 200), alpha=0.7)
 plt.title("Scatter Plot: Diversity vs Stopword Ratio")
-plt.savefig("diversity_scatter.png")
+plt.savefig("data_interpretation/diversity_scatter.png")
 plt.close()
 
 print(df.head())
