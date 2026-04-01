@@ -1,6 +1,4 @@
-# Search Engine Project
-🟢 Status: Active
-
+# Distributed Search Engine Project
 
 ## Phase: 1 (Single Node Single Machine)
 
@@ -27,4 +25,3 @@
 3. docker-compose up --build
 4. Visit: http://localhost:8000/docs/
 
-## Thankyou
