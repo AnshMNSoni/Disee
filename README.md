@@ -1,30 +1,103 @@
-# Distributed Search Engine Project
+#  Distributed Search Engine (DSE)
 
-## Phase: 1 (Single Node Single Machine)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Framework-009688.svg)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED.svg)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-#### System Design:
-<img width="2666" height="1089" alt="dse-p1" src="https://github.com/user-attachments/assets/28582eae-239a-4eca-b22a-3de9b402c8ce" />
+A high-performance, containerized, distributed search engine built with **FastAPI** and **Docker**. This project implements a scalable architecture for indexing and searching across multiple distributed storage nodes using a centralized gateway for result aggregation and deduplication.
 
-## Phase: 2 (Multiple Nodes Single Machine)
+---
 
-#### System Design:
-<img width="4575" height="2743" alt="dse-p2" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
+##  System Architecture
 
-## Phase: 3 (Single Nodes Multiple Machines) (On going)
+The project is structured around a **Gateway-Node** pattern, where a central entry point manages communication with multiple worker nodes that handle local data storage and indexing.
 
-#### System Design:
-<img width="1205" height="646" alt="Screenshot 2026-04-02 105012" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
+### Phase 1: Single Node (Single Machine)
+Initial implementation focused on a standalone node managing its own inverted index and search logic.
+<img width="2666" height="1089" alt="Phase 1 Architecture" src="https://github.com/user-attachments/assets/28582eae-239a-4eca-b22a-3de9b402c8ce" />
 
-#### Features:
-- When you start the app, the inverted index will auto-build
-- Then when you search a keyword say "cloud" you will get the results
+### Phase 2: Multiple Nodes (Single Machine)
+Introduction of the **Gateway Service**, which orchestrates search queries across multiple containers running on the same host via Docker Compose.
+<img width="4575" height="2743" alt="Phase 2 Architecture" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
 
-#### Limitations:
-- For now it is single word search, later improved to Multi-word search
+### Phase 3: Distributed Cluster (Ongoing)
+The goal of Phase 3 is to achieve full distribution across multiple physical or virtual machines, implementing more resilient discovery and load balancing.
+<img width="1205" height="646" alt="Phase 3 Architecture" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
 
-#### To run:
-1. Fork the repository
-2. Open Docker Desktop
-3. docker-compose up --build
-4. Visit: http://localhost:8000/docs/
+---
 
+##  Key Features
+
+- **Distributed Query Aggregation**: The Gateway service fans out search requests to all active nodes in parallel.
+- **Automated Inverted Indexing**: Each node builds and optimizes its local inverted index automatically upon system startup.
+- **Result Deduplication**: Intelligent post-processing at the gateway layer to ensure unique search results.
+- **Asynchronous I/O**: Heavy use of `httpx` and `asyncio` for non-blocking concurrent node communication.
+- **Dockerized Environment**: Fully containerized setup for consistent development and deployment.
+- **FastAPI OpenAPI Integration**: Interactive API documentation available out-of-the-box.
+
+---
+
+##  Tech Stack
+
+- **Language**: Python 3.9+
+- **Web Framework**: [FastAPI](https://fastapi.tiangolo.com/)
+- **ASGI Server**: [Uvicorn](https://www.uvicorn.org/)
+- **HTTP Client**: [HTTPX](https://www.python-httpx.org/) (for asynchronous node calls)
+- **Containerization**: [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
+- **Data Handling**: Standard Inverted Index algorithm with internal tokenization.
+
+---
+
+##  Getting Started
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- [Python 3.9+](https://www.python.org/downloads/) (for local development, optional).
+
+### Quick Launch
+
+1.  **Clone/Fork the Repository**:
+    ```bash
+    git clone https://github.com/pdeu-princepatel/Distributive-Search-Engine.git
+    cd Distributive-Search-Engine
+    ```
+
+2.  **Spin up the Cluster**:
+    ```bash
+    docker-compose up --build
+    ```
+
+3.  **Access the Search API**:
+    - **Gateway Search**: `http://localhost:8000/search?q=your_keyword`
+    - **Interactive API Docs (Swagger UI)**: `http://localhost:8000/docs/`
+
+---
+
+##  Current Scope & Roadmap
+
+- [x] Phase 1: Standalone Indexing & Search
+- [x] Phase 2: Dockerized Multi-Node Aggregation
+- [ ] Phase 3: Cross-Machine Distribution (in progress)
+- [ ] Feature: Multi-word search with ranking (TF-IDF/BM25)
+- [ ] Feature: Dynamic Node Registration & Heartbeats
+- [ ] Feature: Fault-tolerant Querying (Handle node timeouts gracefully)
+
+---
+
+##  Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request or open an issue for any bug reports or feature requests.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+##  License
+
+This project is licensed under the [MIT License](LICENSE).
