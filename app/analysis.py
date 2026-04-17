@@ -6,14 +6,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import Counter
 from sklearn.feature_extraction.text import CountVectorizer
+# --- ADD THESE IMPORTS TO THE TOP OF YOUR FILE ---
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
 
 # 1. Data Collection and Metric Calculation
+os.makedirs("data_interpretation", exist_ok=True)
 storage_paths = ["storage_node1", "storage_node2", "storage_node3"]
 data_list = []
 
 stopwords_set = {"the", "a", "of", "and", "in", "to", "is", "for", "on", "with", "as", "by"}
 
 for storage_path in storage_paths:
+    if not os.path.exists(storage_path):
+        continue
     for filename in os.listdir(storage_path):
         filepath = os.path.join(storage_path, filename)
         
@@ -127,6 +133,65 @@ sns.scatterplot(data=df, x="lexical_diversity", y="stopword_ratio", hue="word_co
 plt.title("Scatter Plot: Diversity vs Stopword Ratio")
 plt.savefig("data_interpretation/diversity_scatter.png")
 plt.close()
+
+
+# --- APPEND THIS CODE TO THE END OF YOUR VISUALIZATION SECTION ---
+
+# NEW VISUAL 1: Zipf's Law (Log-Log Distribution)
+# This proves the statistical naturalness of the corpus
+all_words_concat = re.findall(r'\b[a-z]{2,}\b', " ".join(all_texts))
+word_counts = Counter(all_words_concat)
+counts = sorted(word_counts.values(), reverse=True)
+ranks = range(1, len(counts) + 1)
+
+plt.figure(figsize=(8, 6))
+plt.loglog(ranks, counts, marker=".", linestyle='none', color='blue')
+plt.title("Zipf's Law: Word Frequency vs Rank (Log-Log)")
+plt.xlabel("Log(Rank)")
+plt.ylabel("Log(Frequency)")
+plt.grid(True, which="both", ls="-", alpha=0.5)
+plt.savefig("data_interpretation/zipfs_law.png")
+plt.close()
+
+# NEW VISUAL 2: PCA Cluster Map (Semantic Document Mapping)
+# This shows how the search engine "sees" document similarities
+tfidf_vec = TfidfVectorizer(stop_words='english', max_features=100)
+tfidf_matrix = tfidf_vec.fit_transform(all_texts)
+pca = PCA(n_components=2)
+components = pca.fit_transform(tfidf_matrix.toarray())
+
+plt.figure(figsize=(10, 7))
+plt.scatter(components[:, 0], components[:, 1], alpha=0.7, c='red', edgecolors='k')
+
+# Labeling a subset of points for clarity
+for i, filename in enumerate(df['filename']):
+    if i % 5 == 0:  # Label every 5th document to prevent overlap
+        plt.annotate(filename, (components[i, 0], components[i, 1]), fontsize=9, alpha=0.8)
+
+plt.title("PCA: Semantic Clustering of Documents")
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.savefig("data_interpretation/corpus_clusters_pca.png")
+plt.close()
+
+# NEW VISUAL 3: TF-IDF Importance (Ranking Gravity)
+# Shows which technical terms hold the most weight in the system
+importance = np.mean(tfidf_matrix.toarray(), axis=0)
+feat_names = tfidf_vec.get_feature_names_out()
+sorted_idx = np.argsort(importance)[-15:] # Top 15 terms
+
+plt.figure(figsize=(10, 6))
+plt.barh([feat_names[i] for i in sorted_idx], [importance[i] for i in sorted_idx], color='purple')
+plt.title("Top 15 Most Informative Terms (Global TF-IDF Weight)")
+plt.xlabel("Average TF-IDF Score")
+plt.tight_layout()
+plt.savefig("data_interpretation/tfidf_importance.png")
+plt.close()
+
+# Final check of the dataframe for your console
+print("--- Dataframe Preview ---")
+print(df.head())
+print("\nAll 9 visuals (including Zipf, PCA, and TF-IDF) have been saved to 'data_interpretation/'.")
 
 print(df.head())
 print("Visualizations completed.")
