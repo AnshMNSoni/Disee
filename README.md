@@ -7,25 +7,21 @@
 
 A high-performance, containerized, distributed search engine built with **FastAPI** and **Docker**. This project implements a scalable architecture for indexing and searching across multiple distributed storage nodes using a centralized gateway for result aggregation and deduplication.
 
----
-
 ## 🏗️ System Architecture
 
 The project is structured around a **Gateway-Node** pattern, where a central entry point manages communication with multiple worker nodes that handle local data storage and indexing.
 
 ### Phase 1: Single Node (Single Machine)
 Initial implementation focused on a standalone node managing its own inverted index and search logic.
-<img width="2666" height="1089" alt="Phase 1 Architecture" src="https://github.com/user-attachments/assets/28582eae-239a-4eca-b22a-3de9b402c8ce" />
+<img width="2666" height="789" alt="Phase 1 Architecture" src="https://github.com/user-attachments/assets/28582eae-239a-4eca-b22a-3de9b402c8ce" />
 
 ### Phase 2: Multiple Nodes (Single Machine)
 Introduction of the **Gateway Service**, which orchestrates search queries across multiple containers running on the same host via Docker Compose.
-<img width="4575" height="2743" alt="Phase 2 Architecture" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
+<img width="4575" height="1250" alt="Phase 2 Architecture" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
 
 ### Phase 3: Distributed Cluster (Ongoing 🚀)
 The goal of Phase 3 is to achieve full distribution across multiple physical or virtual machines, implementing more resilient discovery and load balancing.
 <img width="1205" height="646" alt="Phase 3 Architecture" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
-
----
 
 ## ✨ Key Features
 
@@ -36,8 +32,6 @@ The goal of Phase 3 is to achieve full distribution across multiple physical or 
 - **Dockerized Environment**: Fully containerized setup for consistent development and deployment.
 - **FastAPI OpenAPI Integration**: Interactive API documentation available out-of-the-box.
 
----
-
 ## 🛠️ Tech Stack
 
 - **Language**: Python 3.9+
@@ -46,8 +40,6 @@ The goal of Phase 3 is to achieve full distribution across multiple physical or 
 - **HTTP Client**: [HTTPX](https://www.python-httpx.org/) (for asynchronous node calls)
 - **Containerization**: [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
 - **Data Handling**: Standard Inverted Index algorithm with internal tokenization.
-
----
 
 ## 🚀 Getting Started
 
@@ -73,7 +65,16 @@ The goal of Phase 3 is to achieve full distribution across multiple physical or 
     - **Gateway Search**: `http://localhost:8000/search?q=your_keyword`
     - **Interactive API Docs (Swagger UI)**: `http://localhost:8000/docs/`
 
----
+4. **UI Experience**:
+    ```sh
+    cd frontend
+    ```
+    ```sh
+    npm install
+    ```
+    ```sh
+    npm run dev
+    ```
 
 ## 📋 Current Scope & Roadmap
 
@@ -83,8 +84,6 @@ The goal of Phase 3 is to achieve full distribution across multiple physical or 
 - [ ] Feature: Multi-word search with ranking (TF-IDF/BM25)
 - [ ] Feature: Dynamic Node Registration & Heartbeats
 - [ ] Feature: Fault-tolerant Querying (Handle node timeouts gracefully)
-
----
 
 ## 🤝 Contributing
 
@@ -96,7 +95,9 @@ Contributions are welcome! Please feel free to submit a Pull Request or open an 
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
----
+## 🟢 Active Contributors
+
+![Contributors](https://contrib.rocks/image?repo=AnshMNSoni/Disee)
 
 ## 📜 License
 
