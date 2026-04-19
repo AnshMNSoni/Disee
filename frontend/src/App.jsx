@@ -70,7 +70,7 @@ export default function App() {
             <Database size={32} strokeWidth={1.5} />
           </div>
           <h1 className="text-4xl font-semibold text-textMain tracking-tight">
-            Distri<span className="text-blue-500 font-bold">Search</span>
+            Di<span className="text-blue-500 font-bold">see</span>
           </h1>
         </motion.div>
 
@@ -133,21 +133,23 @@ export default function App() {
 
             {!isLoading && results.map((result, idx) => (
               <motion.div
-                key={result + idx}
+                key={result.title + idx}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 * idx }}
                 className="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex items-start gap-4 group cursor-pointer"
+                onClick={() => { if(result.url) window.open(result.url, '_blank')} }
               >
                 <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors text-slate-400">
                   <FileText size={24} strokeWidth={1.5} />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-textMain group-hover:text-blue-600 transition-colors mb-1">
-                    {result}
+                    {result.title}
                   </h3>
-                  <p className="text-slate-500 text-sm">
-                    Found in distributed storage node cluster.
+                  <p className="text-slate-600 text-sm mb-2 line-clamp-2" dangerouslySetInnerHTML={{ __html: result.summary }}></p>
+                  <p className="text-slate-400 text-xs italic">
+                    {result.source || "Found in distributed storage node cluster."}
                   </p>
                 </div>
               </motion.div>
