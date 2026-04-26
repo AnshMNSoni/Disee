@@ -13,6 +13,9 @@ A high-performance, containerized, distributed search engine built with **FastAP
 
 ## 🏗️ System Architecture
 
+<img width="1536" height="1024" alt="disee-gateway-worker architecture" src="https://github.com/user-attachments/assets/d970722d-5a61-4b1f-9e17-210fb76ab853" />
+<br>
+
 The project is structured around a **Gateway-Worker** pattern. The central Gateway fetches real-time data from external APIs (Wikipedia, StackOverflow), partitions the content, and distributes it to multiple worker nodes that process and attribute the data in parallel.
 
 ### Phase 1: Single Node (Single Machine)
