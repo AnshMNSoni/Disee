@@ -1,3 +1,7 @@
+<div align='center'>
+    <img width="1774" height="887" alt="Disee" src="https://github.com/user-attachments/assets/4cb734c2-6a0a-45ee-9953-e0394d68ab10" />
+</div>
+
 # 🔍 Distributed Search Engine (DSE)
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
@@ -13,7 +17,7 @@ The project is structured around a **Gateway-Worker** pattern. The central Gatew
 
 ### Phase 1: Single Node (Single Machine)
 Initial implementation focused on a standalone node managing its own inverted index and search logic.
-<img width="2666" height="789" alt="Phase 1 Architecture" src="https://github.com/user-attachments/assets/28582eae-239a-4eca-b22a-3de9b402c8ce" />
+<img width="2666" height="900" alt="Phase 1 Architecture" src="https://github.com/user-attachments/assets/28582eae-239a-4eca-b22a-3de9b402c8ce" />
 
 ### Phase 2: Multiple Nodes (Single Machine)
 Introduction of the **Gateway Service**, which orchestrates search queries across multiple containers running on the same host via Docker Compose.
