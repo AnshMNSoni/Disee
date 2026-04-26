@@ -23,7 +23,7 @@ Initial implementation focused on a standalone node managing its own inverted in
 Introduction of the **Gateway Service**, which orchestrates search queries across multiple containers running on the same host via Docker Compose.
 <img width="4575" height="2250" alt="Phase 2 Architecture" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
 
-### Phase 3: Distributed Cluster (Ongoing 🚀)
+### Phase 3: Static Nodes (Multiple Machine) (Currently 3 static nodes)
 The goal of Phase 3 is to achieve full distribution across multiple physical or virtual machines, implementing more resilient discovery and load balancing.
 <img width="1205" height="646" alt="Phase 3 Architecture" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
 
