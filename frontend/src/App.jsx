@@ -29,7 +29,14 @@ export default function App() {
       setIsLoading(true);
 
       try {
-        const response = await fetch(`http://localhost:8000/search?q=${encodeURIComponent(trimmedQuery)}`);
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const hostname = window.location.hostname;
+        const apiHost = hostname.startsWith('api.') ? hostname : `api.${hostname.replace(/^www\./, '')}`;
+        const API_URL = import.meta.env.VITE_API_URL || (isLocal 
+          ? 'http://localhost:8000' 
+          : `${window.location.protocol}//${apiHost}`);
+
+        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}`);
         if (!response.ok) throw new Error('Search failed');
         const data = await response.json();
         setResults(data.results || []);
@@ -46,7 +53,7 @@ export default function App() {
   }, [query]);
 
   const handleSearch = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
   };
 
   return (
@@ -62,9 +69,9 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-      
+
       {/* Dynamic Spacer - pushing content to center initially */}
-      <motion.div 
+      <motion.div
         layout
         className="w-full flex-shrink-0"
         initial={{ height: "35vh" }}
@@ -72,8 +79,8 @@ export default function App() {
         transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
       />
 
-      <motion.div 
-        layout 
+      <motion.div
+        layout
         className="w-full max-w-2xl px-4 sm:px-6 flex flex-col items-center z-10"
         transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
       >
@@ -87,7 +94,7 @@ export default function App() {
           </h1>
         </motion.div>
 
-        <motion.form 
+        <motion.form
           layout
           onSubmit={handleSearch}
           className="w-full relative group z-20"
@@ -97,7 +104,7 @@ export default function App() {
           <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300 z-30">
             <Search size={22} strokeWidth={2} />
           </div>
-          
+
           <input
             type="text"
             placeholder='Search with Disee'
@@ -107,9 +114,9 @@ export default function App() {
             onBlur={() => setIsFocused(false)}
             className="w-full pl-16 pr-20 py-4 text-[1.05rem] leading-relaxed rounded-full border border-slate-200 outline-none transition-all duration-300 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_16px_-4px_rgba(26,115,232,0.15)] hover:border-slate-300 focus:border-[#1a73e8] focus:ring-4 focus:ring-[#1a73e8]/10 bg-white text-slate-800 relative z-20"
           />
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="absolute inset-y-2.5 right-3 px-6 bg-[#1a73e8] hover:bg-blue-700 text-white font-medium rounded-full transition-all active:scale-95 flex items-center justify-center opacity-0 sm:opacity-100 disabled:opacity-0 pointer-events-none sm:pointer-events-auto z-30"
             style={{ opacity: query.trim() ? 1 : 0 }}
             disabled={isLoading}
@@ -122,7 +129,7 @@ export default function App() {
       {/* Results Section */}
       <AnimatePresence>
         {hasSearched && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
@@ -148,7 +155,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.05 * idx }}
                 className="group cursor-pointer py-4 border-b border-transparent hover:bg-slate-50 rounded-2xl p-5 -mx-5 transition-colors"
-                onClick={() => { if(result.url) window.open(result.url, '_blank')} }
+                onClick={() => { if (result.url) window.open(result.url, '_blank') }}
               >
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-slate-100 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors text-slate-500 shrink-0">

@@ -1,5 +1,5 @@
-<div align='center'>
-    <img width="1774" height="887" alt="Disee" src="https://github.com/user-attachments/assets/4cb734c2-6a0a-45ee-9953-e0394d68ab10" />
+<div style="display: flex; justify-content: center;">
+  <img src="https://github.com/user-attachments/assets/cbc15cd7-0fe3-4401-9c6e-4aaed4604503"  alt="Desi" style="max-width: 100%; height: auto;" />
 </div>
 
 # 🔍 Distributed Search Engine (DSE)
@@ -13,6 +13,9 @@ A high-performance, containerized, distributed search engine built with **FastAP
 
 ## 🏗️ System Architecture
 
+<img width="1536" height="1024" alt="disee-gateway-worker architecture" src="https://github.com/user-attachments/assets/d970722d-5a61-4b1f-9e17-210fb76ab853" />
+<br>
+
 The project is structured around a **Gateway-Worker** pattern. The central Gateway fetches real-time data from external APIs (Wikipedia, StackOverflow), partitions the content, and distributes it to multiple worker nodes that process and attribute the data in parallel.
 
 ### Phase 1: Single Node (Single Machine)
@@ -23,7 +26,7 @@ Initial implementation focused on a standalone node managing its own inverted in
 Introduction of the **Gateway Service**, which orchestrates search queries across multiple containers running on the same host via Docker Compose.
 <img width="4575" height="2250" alt="Phase 2 Architecture" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
 
-### Phase 3: Distributed Cluster (Ongoing 🚀)
+### Phase 3: Static Nodes (Multiple Machine) (Currently 3 static nodes)
 The goal of Phase 3 is to achieve full distribution across multiple physical or virtual machines, implementing more resilient discovery and load balancing.
 <img width="1205" height="646" alt="Phase 3 Architecture" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
 
