@@ -1,5 +1,5 @@
 <div align='center'>
-    <img width="1774" height="887" alt="Disee" src="https://github.com/user-attachments/assets/4cb734c2-6a0a-45ee-9953-e0394d68ab10" />
+    <img width="1774" height="887" alt="Disee" src="https://github.com/user-attachments/assets/5ea1045e-795d-451b-9817-44ea3dd0bee9" />
 </div>
 
 # 🔍 Distributed Search Engine (DSE)
