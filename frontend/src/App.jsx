@@ -84,14 +84,13 @@ export default function App() {
         className="w-full max-w-2xl px-4 sm:px-6 flex flex-col items-center z-10"
         transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
       >
-        <motion.div layout className="mb-12 text-center relative z-20">
-          <h1 className="text-6xl md:text-7xl font-display font-medium tracking-tight pb-2 select-none">
-            <span className="text-[#1a73e8] pr-1">D</span>
-            <span className="text-[#1a73e8] pr-1">i</span>
-            <span className="text-slate-900 pr-1">s</span>
-            <span className="text-slate-800 pr-1">e</span>
-            <span className="text-slate-700 pr-1">e</span>
-          </h1>
+        <motion.div layout className="mb-12 text-center relative z-20 flex justify-center">
+          <img
+            src="/disee.png"
+            alt="Disee Logo"
+            className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] h-auto object-contain select-none"
+            draggable="false"
+          />
         </motion.div>
 
         <motion.form
