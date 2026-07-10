@@ -1,0 +1,4 @@
+Title: ScilifelabDataCentre/pathogens-portal
+Source: GitHub API
+URL: https://github.com/ScilifelabDataCentre/pathogens-portal
+Content: Swedish pathogens portal - Stars: 13

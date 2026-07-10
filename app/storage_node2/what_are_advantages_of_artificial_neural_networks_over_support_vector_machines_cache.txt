@@ -1,0 +1,4 @@
+Title: What are advantages of Artificial Neural Networks over Support Vector Machines?
+Source: StackOverflow API
+URL: https://stackoverflow.com/questions/11632516/what-are-advantages-of-artificial-neural-networks-over-support-vector-machines
+Content: Tags: machine-learning, neural-network, classification, svm

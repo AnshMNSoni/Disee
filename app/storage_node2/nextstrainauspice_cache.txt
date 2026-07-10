@@ -1,0 +1,4 @@
+Title: nextstrain/auspice
+Source: GitHub API
+URL: https://github.com/nextstrain/auspice
+Content: Web app for visualizing pathogen evolution - Stars: 312

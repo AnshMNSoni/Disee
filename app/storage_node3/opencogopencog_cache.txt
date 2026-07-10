@@ -1,0 +1,4 @@
+Title: opencog/opencog
+Source: GitHub API
+URL: https://github.com/opencog/opencog
+Content: A framework for integrated Artificial Intelligence & Artificial General Intelligence (AGI) - Stars: 2473
