@@ -1,0 +1,4 @@
+Title: How can I rename a local Git branch?
+Source: StackOverflow API
+URL: https://stackoverflow.com/questions/6591213/how-can-i-rename-a-local-git-branch
+Content: Tags: git, version-control, git-branch

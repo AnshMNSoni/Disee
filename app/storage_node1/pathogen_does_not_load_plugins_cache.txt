@@ -1,0 +1,4 @@
+Title: Pathogen does not load plugins
+Source: StackOverflow API
+URL: https://stackoverflow.com/questions/3383502/pathogen-does-not-load-plugins
+Content: Tags: vim, vim-plugin

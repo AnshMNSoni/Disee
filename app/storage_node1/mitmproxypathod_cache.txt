@@ -1,0 +1,4 @@
+Title: mitmproxy/pathod
+Source: GitHub API
+URL: https://github.com/mitmproxy/pathod
+Content: 🗃️ This repository has been integrated into mitmproxy/mitmproxy. - Stars: 350

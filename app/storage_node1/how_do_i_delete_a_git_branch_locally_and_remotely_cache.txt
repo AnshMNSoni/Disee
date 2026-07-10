@@ -1,0 +1,4 @@
+Title: How do I delete a Git branch locally and remotely?
+Source: StackOverflow API
+URL: https://stackoverflow.com/questions/2003505/how-do-i-delete-a-git-branch-locally-and-remotely
+Content: Tags: git, version-control, git-branch, git-push, git-remote
