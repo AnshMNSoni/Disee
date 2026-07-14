@@ -34,7 +34,6 @@ export default function App() {
       setIsLoading(true);
 
       try {
-<<<<<<< HEAD
         const isLocal   = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const hostname  = window.location.hostname;
         const apiHost   = hostname.startsWith('api.') ? hostname : `api.${hostname.replace(/^www\./, '')}`;
@@ -43,16 +42,6 @@ export default function App() {
           : `${window.location.protocol}//${apiHost}`);
 
         const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}&mode=${searchMode}`);
-=======
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const hostname = window.location.hostname;
-        const apiHost = hostname.startsWith('api.') ? hostname : `api.${hostname.replace(/^www\./, '')}`;
-        const API_URL = import.meta.env.VITE_API_URL || (isLocal 
-          ? 'http://localhost:8000' 
-          : `${window.location.protocol}//${apiHost}`);
-
-        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}`);
->>>>>>> upstream/main
         if (!response.ok) throw new Error('Search failed');
         const data = await response.json();
         setResults(data.results || []);
@@ -68,13 +57,7 @@ export default function App() {
     return () => clearTimeout(debounceTimer);
   }, [query, searchMode]);
 
-<<<<<<< HEAD
   const handleSearch = (e) => { e.preventDefault(); };
-=======
-  const handleSearch = (e) => {
-    e.preventDefault();
-  };
->>>>>>> upstream/main
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start overflow-hidden font-sans relative">
