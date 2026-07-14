@@ -1,0 +1,4 @@
+Title: Artificial (2026 film)
+Source: Wikipedia API
+URL: https://en.wikipedia.org/?curid=80134706
+Content: <span class="searchmatch">Artificial</span> is an upcoming biographical comedy drama film directed and co-produced by Luca Guadagnino and written by Simon Rich. The film stars Andrew Garfield

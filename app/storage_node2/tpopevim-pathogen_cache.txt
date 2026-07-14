@@ -1,0 +1,4 @@
+Title: tpope/vim-pathogen
+Source: GitHub API
+URL: https://github.com/tpope/vim-pathogen
+Content: pathogen.vim: manage your runtimepath - Stars: 12128

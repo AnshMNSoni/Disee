@@ -34,6 +34,7 @@ export default function App() {
       setIsLoading(true);
 
       try {
+<<<<<<< HEAD
         const isLocal   = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const hostname  = window.location.hostname;
         const apiHost   = hostname.startsWith('api.') ? hostname : `api.${hostname.replace(/^www\./, '')}`;
@@ -42,6 +43,16 @@ export default function App() {
           : `${window.location.protocol}//${apiHost}`);
 
         const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}&mode=${searchMode}`);
+=======
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const hostname = window.location.hostname;
+        const apiHost = hostname.startsWith('api.') ? hostname : `api.${hostname.replace(/^www\./, '')}`;
+        const API_URL = import.meta.env.VITE_API_URL || (isLocal 
+          ? 'http://localhost:8000' 
+          : `${window.location.protocol}//${apiHost}`);
+
+        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}`);
+>>>>>>> upstream/main
         if (!response.ok) throw new Error('Search failed');
         const data = await response.json();
         setResults(data.results || []);
@@ -57,7 +68,13 @@ export default function App() {
     return () => clearTimeout(debounceTimer);
   }, [query, searchMode]);
 
+<<<<<<< HEAD
   const handleSearch = (e) => { e.preventDefault(); };
+=======
+  const handleSearch = (e) => {
+    e.preventDefault();
+  };
+>>>>>>> upstream/main
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start overflow-hidden font-sans relative">
@@ -78,7 +95,11 @@ export default function App() {
         )}
       </AnimatePresence>
 
+<<<<<<< HEAD
       {/* ── Dynamic spacer — pushes content to center when idle ── */}
+=======
+      {/* Dynamic Spacer - pushing content to center initially */}
+>>>>>>> upstream/main
       <motion.div
         layout
         className="w-full flex-shrink-0"
@@ -87,12 +108,16 @@ export default function App() {
         transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
       />
 
+<<<<<<< HEAD
       {/* ── Main content wrapper ── */}
+=======
+>>>>>>> upstream/main
       <motion.div
         layout
         className="w-full max-w-2xl px-4 sm:px-6 flex flex-col items-center z-10"
         transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
       >
+<<<<<<< HEAD
 
         {/* ── Logo / animation ── */}
         <motion.div layout className="flex items-center mb-10 text-center relative z-20">
@@ -104,6 +129,18 @@ export default function App() {
 
         {/* ── Glass panel wrapping search + filter chips ── */}
         <motion.div
+=======
+        <motion.div layout className="mb-12 text-center relative z-20 flex justify-center">
+          <img
+            src="/disee.png"
+            alt="Disee Logo"
+            className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-[360px] h-auto object-contain select-none"
+            draggable="false"
+          />
+        </motion.div>
+
+        <motion.form
+>>>>>>> upstream/main
           layout
           className="w-full glass-panel px-5 py-5 z-20"
           animate={{ scale: isFocused ? 1.01 : 1, y: isFocused ? -4 : 0 }}
@@ -167,7 +204,30 @@ export default function App() {
               </button>
             ))}
           </div>
+<<<<<<< HEAD
         </motion.div>
+=======
+
+          <input
+            type="text"
+            placeholder='Search with Disee'
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className="w-full pl-16 pr-20 py-4 text-[1.05rem] leading-relaxed rounded-full border border-slate-200 outline-none transition-all duration-300 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.1)] focus:shadow-[0_4px_16px_-4px_rgba(26,115,232,0.15)] hover:border-slate-300 focus:border-[#1a73e8] focus:ring-4 focus:ring-[#1a73e8]/10 bg-white text-slate-800 relative z-20"
+          />
+
+          <button
+            type="submit"
+            className="absolute inset-y-2.5 right-3 px-6 bg-[#1a73e8] hover:bg-blue-700 text-white font-medium rounded-full transition-all active:scale-95 flex items-center justify-center opacity-0 sm:opacity-100 disabled:opacity-0 pointer-events-none sm:pointer-events-auto z-30"
+            style={{ opacity: query.trim() ? 1 : 0 }}
+            disabled={isLoading}
+          >
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : "Search"}
+          </button>
+        </motion.form>
+>>>>>>> upstream/main
       </motion.div>
 
       {/* ── Results Section ── */}
@@ -201,9 +261,15 @@ export default function App() {
                 key={result.title + idx}
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
+<<<<<<< HEAD
                 transition={{ duration: 0.35, delay: 0.04 * idx }}
                 className="result-card group cursor-pointer p-5 transition-all"
                 onClick={() => { if (result.url) window.open(result.url, '_blank'); }}
+=======
+                transition={{ duration: 0.4, delay: 0.05 * idx }}
+                className="group cursor-pointer py-4 border-b border-transparent hover:bg-slate-50 rounded-2xl p-5 -mx-5 transition-colors"
+                onClick={() => { if (result.url) window.open(result.url, '_blank') }}
+>>>>>>> upstream/main
               >
                 <div className="flex items-start gap-4">
                   <div className="p-2.5 rounded-xl bg-[#40628A]/5 border border-[#40628A]/10 group-hover:bg-[#40628A]/10 group-hover:border-[#40628A]/20 transition-colors text-slate-500 group-hover:text-[#40628A] shrink-0">

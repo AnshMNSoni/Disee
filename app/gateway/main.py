@@ -72,6 +72,26 @@ async def fetch_stackoverflow_search(client, query):
         print(f"Error calling StackOverflow: {e}")
     return []
 
+async def fetch_github_search(client, query):
+    try:
+        url = "https://api.github.com/search/repositories"
+        params = {"q": query, "per_page": 5}
+        headers = {"User-Agent": "DiseeApp/1.0"}
+        response = await client.get(url, params=params, headers=headers, timeout=5.0)
+        if response.status_code == 200:
+            items = response.json().get("items", [])
+            return [
+                {
+                    "title": item.get("full_name", ""),
+                    "snippet": f"{item.get('description', 'No description')} - Stars: {item.get('stargazers_count', 0)}",
+                    "url": item.get("html_url", ""),
+                    "external_source": "GitHub API"
+                } for item in items
+            ]
+    except Exception as e:
+        print(f"Error calling GitHub: {e}")
+    return []
+
 async def distribute_to_node(client, url, query, chunk):
     try:
         if not chunk:
@@ -97,6 +117,7 @@ async def fetch_local_node_search(client, node_url, query, mode):
 @app.get("/search")
 async def search(q: str = Query(...), mode: str = Query("all")):
     async with httpx.AsyncClient() as client:
+<<<<<<< HEAD
         # 1. Fetch dynamic content based on mode
         #    'all' fetches both, 'prose' = Wikipedia only, 'code' = StackOverflow only
         if mode == "code":
@@ -118,6 +139,15 @@ async def search(q: str = Query(...), mode: str = Query("all")):
         local_results_list = await asyncio.gather(*local_tasks)
         
         combined_results = wiki_results + so_results
+=======
+        # Dynamically fetch content from Wikipedia, StackOverflow, and GitHub
+        wiki_task = fetch_wikipedia_search(client, q)
+        so_task = fetch_stackoverflow_search(client, q)
+        github_task = fetch_github_search(client, q)
+        
+        wiki_results, so_results, github_results = await asyncio.gather(wiki_task, so_task, github_task)
+        combined_results = wiki_results + so_results + github_results
+>>>>>>> upstream/main
         
         # Partition dynamic data across the available nodes for processing
         node_count = len(NODES)

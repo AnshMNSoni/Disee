@@ -1,0 +1,4 @@
+Title: katholt/srst2
+Source: GitHub API
+URL: https://github.com/katholt/srst2
+Content: Short Read Sequence Typing for Bacterial Pathogens - Stars: 148
