@@ -2,7 +2,6 @@ import os
 from app.services import index_services
 from collections import defaultdict
 
-<<<<<<< HEAD
 def search(query: str, search_mode: str = "prose") -> list[dict]:
     """
     Advanced search with quality scoring weights.
@@ -42,14 +41,6 @@ def search(query: str, search_mode: str = "prose") -> list[dict]:
 
     # Sort descending by calculated score
     return sorted(final_rankings, key=lambda x: x["score"], reverse=True)
-=======
-def search(query: str):
-    query = query.lower()
-    index = index_services.INVERTED_INDEX
-    if query in index:
-        return index[query]
-    return []
->>>>>>> upstream/main
 
 def evict_old_cache_files(storage_path: str, max_files: int = 200):
     """

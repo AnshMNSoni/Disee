@@ -117,7 +117,6 @@ async def fetch_local_node_search(client, node_url, query, mode):
 @app.get("/search")
 async def search(q: str = Query(...), mode: str = Query("all")):
     async with httpx.AsyncClient() as client:
-<<<<<<< HEAD
         # 1. Fetch dynamic content based on mode
         #    'all' fetches both, 'prose' = Wikipedia only, 'code' = StackOverflow only
         if mode == "code":
@@ -139,15 +138,6 @@ async def search(q: str = Query(...), mode: str = Query("all")):
         local_results_list = await asyncio.gather(*local_tasks)
         
         combined_results = wiki_results + so_results
-=======
-        # Dynamically fetch content from Wikipedia, StackOverflow, and GitHub
-        wiki_task = fetch_wikipedia_search(client, q)
-        so_task = fetch_stackoverflow_search(client, q)
-        github_task = fetch_github_search(client, q)
-        
-        wiki_results, so_results, github_results = await asyncio.gather(wiki_task, so_task, github_task)
-        combined_results = wiki_results + so_results + github_results
->>>>>>> upstream/main
         
         # Partition dynamic data across the available nodes for processing
         node_count = len(NODES)
