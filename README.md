@@ -30,15 +30,55 @@ Introduction of the **Gateway Service**, which orchestrates search queries acros
 The goal of Phase 3 is to achieve full distribution across multiple physical or virtual machines, implementing more resilient discovery and load balancing.
 <img width="1205" height="646" alt="Phase 3 Architecture" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
 
-## ✨ Key Features
+## ✨ Key Features & Optimizations
 
-- **Distributed Query Aggregation**: The Gateway service fans out processed data chunks to all active worker nodes in parallel.
-- **Dynamic Multi-Source Integration**: Real-time fetching from Wikipedia and StackOverflow APIs for up-to-date information.
-- **Distributed Result Processing**: Nodes act as distributed processors, enriching and attributing dynamic content chunks.
-- **Premium Minimal UI**: A Google-inspired, immersive frontend with smooth motion design, focus-aware dimming, and elegant typography.
-- **Asynchronous I/O**: Heavy use of `httpx` and `asyncio` for non-blocking concurrent node communication.
-- **Dockerized Environment**: Fully containerized setup for consistent development and deployment.
-- **FastAPI OpenAPI Integration**: Interactive API documentation available out-of-the-box.
+### 1. Dual-Stream Tokenization (Code vs. Prose)
+* **Files**: `index_services.py`
+* **Mechanism**: During startup document indexing, text content is concurrently tokenized into two distinct streams:
+  | Stream | Tokenizer | Behavior | Example |
+  | :--- | :--- | :--- | :--- |
+  | **Prose** | `tokenize_prose()` | Extracts clean alpha-numeric terms, discarding common stop words (`the`, `is`, `at`, etc.) | `"python scripting"` → `["python", "scripting"]` |
+  | **Code** | `tokenize_code()` | Retains programming syntax characters like underscores, dots, and hyphens | `"user_id str.replace"` → `["user_id", "str.replace"]` |
+* **Advantage**: Standard prose tokenizers split code elements like `ctx.execute()` into generic `ctx` and `execute` tokens, losing technical context. Keeping syntax structures intact ensures precise search matching on exact API references and variable names.
+
+### 2. Metadata-Weighted Scoring (Social Boost)
+* **Files**: `search_services.py`, `index_services.py`
+* **Mechanism**: Documents are enriched with interactive metadata (such as upvote and edit counts). Results are ranked dynamically based on this logarithmic scoring system:
+  $$\text{final\_score} = \text{text\_match\_score} \times \left(1 + \frac{\text{score}}{100 + \text{score}}\right)$$
+* **Advantage**: This ensures highly upvoted/established answers receive a logarithmic authority boost over low-quality matches, prioritizing proven solutions without letting authority overshadow query relevance.
+  * *5 upvotes* $\rightarrow$ ~5% boost
+  * *100 upvotes* $\rightarrow$ ~50% boost
+  * *10,000 upvotes* $\rightarrow$ ~99% boost (caps gracefully)
+
+### 3. Source-Aware Search Modes
+* **Files**: `gateway/main.py`, [App.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/App.jsx)
+* **Mechanism**: The user interface supports three query filters that map cleanly to targeted datasets:
+  | Mode | External APIs | Local Index |
+  | :--- | :--- | :--- |
+  | 🌐 **All** *(Default)* | Wikipedia + StackOverflow | Prose Index |
+  | 📖 **Wikipedia** | Wikipedia Only | Prose Index |
+  | 💻 **StackOverflow** | StackOverflow Only | Code Index |
+* **Advantage**: Fine-tunes performance and output quality. Conceptual queries use Wikipedia indices, whereas technical queries target code token streams from StackOverflow.
+
+### 4. Distributed Processing of External Results
+* **Files**: `gateway/main.py`
+* **Mechanism**: Real-time Wikipedia/StackOverflow responses are split into chunks and distributed asynchronously across active background worker nodes for parallel metadata enrichment and attribution.
+* **Advantage**: Simulates horizontal scaling on clusters, unloading query parsing bottlenecks from the central gateway to compute nodes.
+
+### 5. Startup Index Building
+* **Files**: `main.py`
+* **Mechanism**: Scans internal storage folders on node boot-up and automatically structures the code and prose inverted indexes in-memory (`build_index()`).
+* **Advantage**: Replaces manual index triggers; the cluster is search-ready the moment servers boot.
+
+### 6. Premium Responsive Light UI
+* **Files**: [App.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/App.jsx), [index.css](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/index.css), [LogoAnimation.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/LogoAnimation.jsx), [MatrixBackground.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/MatrixBackground.jsx)
+* **Mechanism**: Features a premium light Wedgwood blue and cream theme.
+  * Includes a background canvas displaying animated colliding nodes and binary streams.
+  * Incorporates a `.webm` intro animation that plays dynamically on page load before cross-fading into the static brand logo.
+  * Uses premium glassmorphic frosted-blur overlays behind form inputs and results.
+  * Disables user-drag and selections on visual assets to preserve brand styling integrity.
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -50,50 +90,53 @@ The goal of Phase 3 is to achieve full distribution across multiple physical or 
 - **Containerization**: [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
 - **Data Sourcing**: Wikipedia API & StackOverflow (StackExchange) API.
 
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-- [Python 3.9+](https://www.python.org/downloads/) (for local development, optional).
+- [Node.js](https://nodejs.org/) (v16+) and [Python 3.9+](https://www.python.org/downloads/) (for local development).
 
 ### Quick Launch
 
-1.  **Clone/Fork the Repository**:
-    ```bash
-    git clone https://github.com/AnshMNSoni/Distributive-Search-Engine.git
-    cd Distributive-Search-Engine
-    ```
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/AnshMNSoni/Distributive-Search-Engine.git
+   cd Distributive-Search-Engine
+   ```
 
-2.  **Spin up the Cluster**:
-    ```bash
-    docker-compose up --build
-    ```
+2. **Spin up the Cluster**:
+   ```bash
+   docker-compose up --build
+   ```
 
-3.  **Access the Search API**:
-    - **Gateway Search**: `http://localhost:8000/search?q=your_keyword`
-    - **Interactive API Docs (Swagger UI)**: `http://localhost:8000/docs/`
+3. **Access the Search API**:
+   - **Gateway Search**: `http://localhost:8000/search?q=your_keyword`
+   - **Interactive API Docs (Swagger UI)**: `http://localhost:8000/docs/`
 
 4. **UI Experience**:
-    ```sh
-    cd frontend
-    ```
-    ```sh
-    npm install
-    ```
-    ```sh
-    npm run dev
-    ```
+   ```sh
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+---
 
 ## 📋 Current Scope & Roadmap
 
 - [x] Phase 1: Standalone Indexing & Search
 - [x] Phase 2: Dockerized Multi-Node Aggregation
 - [x] Phase 3: Dynamic Wikipedia & StackOverflow Integration
-- [x] Feature: Premium Google-like UI with immersive animations
-- [x] Feature: Distributed Processing Workers
+- [x] Feature: Premium Light UI with interactive collision-matrix background
+- [x] Feature: Startup Auto-indexing & Dual-Stream Tokenizers
+- [x] Feature: Logarithmic Social Boost Metadata Ranking
 - [ ] Feature: Dynamic Node Registration & Heartbeats
 - [ ] Feature: Fault-tolerant Querying (Handle node timeouts gracefully)
+
+---
 
 ## 🤝 Contributing
 

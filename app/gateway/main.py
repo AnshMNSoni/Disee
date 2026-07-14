@@ -13,12 +13,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# All node URLs
-NODES = [
-    "http://node1:8000/search",
-    "http://node2:8000/search",
-    "http://node3:8000/search",
-]
+import os
+
+# Check environment or fallback to localhost if not in container environment
+IN_DOCKER = os.path.exists("/.dockerenv") or os.environ.get("IN_DOCKER", "false").lower() == "true"
+
+if IN_DOCKER:
+    NODES = [
+        "http://node1:8000/search",
+        "http://node2:8000/search",
+        "http://node3:8000/search",
+    ]
+else:
+    NODES = [
+        "http://localhost:8001/search",
+        "http://localhost:8002/search",
+        "http://localhost:8003/search",
+    ]
+
 
 async def fetch_wikipedia_search(client, query):
     try:
@@ -73,17 +85,41 @@ async def distribute_to_node(client, url, query, chunk):
         print(f"Error calling node {url}: {e}")
     return []
 
+async def fetch_local_node_search(client, node_url, query, mode):
+    try:
+        response = await client.get(node_url, params={"q": query, "mode": mode}, timeout=5.0)
+        if response.status_code == 200:
+            return response.json().get("results", [])
+    except Exception as e:
+        print(f"Error querying local search from {node_url}: {e}")
+    return []
+
 @app.get("/search")
-async def search(q: str = Query(...)):
+async def search(q: str = Query(...), mode: str = Query("all")):
     async with httpx.AsyncClient() as client:
-        # Dynamically fetch content from Wikipedia and StackOverflow
-        wiki_task = fetch_wikipedia_search(client, q)
-        so_task = fetch_stackoverflow_search(client, q)
+        # 1. Fetch dynamic content based on mode
+        #    'all' fetches both, 'prose' = Wikipedia only, 'code' = StackOverflow only
+        if mode == "code":
+            wiki_results, so_results = [], await fetch_stackoverflow_search(client, q)
+        elif mode == "prose":
+            wiki_results, so_results = await fetch_wikipedia_search(client, q), []
+        else:
+            # Default 'all' mode — fetch both concurrently
+            wiki_results, so_results = await asyncio.gather(
+                fetch_wikipedia_search(client, q),
+                fetch_stackoverflow_search(client, q)
+            )
         
-        wiki_results, so_results = await asyncio.gather(wiki_task, so_task)
+        # 2. Concurrently query all local storage nodes (uses prose index for 'all')
+        index_mode = "prose" if mode == "all" else mode
+        local_tasks = [fetch_local_node_search(client, node_url, q, index_mode) for node_url in NODES]
+        
+        # Execute local node queries concurrently
+        local_results_list = await asyncio.gather(*local_tasks)
+        
         combined_results = wiki_results + so_results
         
-        # Partition data across the available nodes
+        # Partition dynamic data across the available nodes for processing
         node_count = len(NODES)
         chunk_size = (len(combined_results) + node_count - 1) // node_count if combined_results else 0
         
@@ -95,15 +131,18 @@ async def search(q: str = Query(...)):
                 chunks.append(combined_results[i * chunk_size : (i + 1) * chunk_size])
 
         # Distribute chunks to nodes
-        tasks = [
+        distribute_tasks = [
             distribute_to_node(client, NODES[i], q, chunks[i])
             for i in range(node_count)
         ]
         
-        node_results = await asyncio.gather(*tasks)
+        processed_dynamic_results = await asyncio.gather(*distribute_tasks)
 
+    # Merge all local and dynamic results
     merged = []
-    for r in node_results:
+    for r in local_results_list:
+        merged.extend(r)
+    for r in processed_dynamic_results:
         merged.extend(r)
 
     # Convert complex structures like dicts to sortable types to eliminate duplicates
@@ -120,7 +159,12 @@ async def search(q: str = Query(...)):
                 seen.add(item)
                 unique_merged.append(item)
 
+    # Sort results by score (highest first)
+    unique_merged.sort(key=lambda x: x.get("score", 0.0) if isinstance(x, dict) else 0.0, reverse=True)
+
     return {
         "query": q,
+        "mode": mode,
         "results": unique_merged
     }
+

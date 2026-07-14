@@ -6,8 +6,10 @@
 
 @layer base {
   body {
-    @apply bg-white text-slate-800 antialiased overflow-x-hidden;
+    @apply antialiased overflow-x-hidden;
     font-family: 'Inter', sans-serif;
+    background: #f6f3ec;
+    color: #334155;
   }
 }
 
@@ -15,10 +17,47 @@
   font-family: 'Outfit', sans-serif;
 }
 
+/* ─── Glassmorphism card used behind search + filter tabs ─── */
+.glass-panel {
+  background: rgba(246, 243, 236, 0.65);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(64, 98, 138, 0.15);
+  border-radius: 28px;
+  box-shadow:
+    0 8px 32px rgba(64, 98, 138, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ─── Search input (light-mode) ─── */
 .search-input-shadow {
-  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px 0 rgba(64, 98, 138, 0.05);
 }
 
 .search-input-shadow-focus {
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), 0 4px 14px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 4px rgba(64, 98, 138, 0.12), 0 4px 14px 0 rgba(64, 98, 138, 0.08);
+}
+
+/* ─── Result cards ─── */
+.result-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(64, 98, 138, 0.1);
+  border-radius: 18px;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.result-card:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(64, 98, 138, 0.25);
+  box-shadow: 0 8px 24px rgba(64, 98, 138, 0.12);
+}
+
+/* ─── Non-selectable utility ─── */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }

@@ -17,6 +17,9 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_event():
-    print("Node startup: Ready to process dynamic Wikipedia queries...")
+    print("Node startup: Ready to process queries...")
+    from app.services.index_services import build_index
+    build_index()
+
 
 app.include_router(search_routes.router)

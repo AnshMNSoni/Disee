@@ -10,9 +10,10 @@ class ProcessRequest(BaseModel):
     content: List[Dict[str, Any]]
 
 @router.get("")
-def search_query(q: str = Query(...)):
-    results = search(q)
+def search_query(q: str = Query(...), mode: str = Query("prose")):
+    results = search(q, mode)
     return {"query": q, "results": results}
+
 
 @router.post("/process")
 def process_dynamic(payload: ProcessRequest):
