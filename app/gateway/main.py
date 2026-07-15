@@ -295,3 +295,18 @@ async def search(q: str = Query(...), mode: str = Query("all")):
         "mode": mode,
         "results": final_results
     }
+
+@app.get("/suggestions")
+async def get_suggestions(q: str = Query(...)):
+    try:
+        async with httpx.AsyncClient() as client:
+            url = "https://suggestqueries.google.com/complete/search"
+            params = {"client": "firefox", "q": q}
+            response = await client.get(url, params=params, timeout=2.0)
+            if response.status_code == 200:
+                data = response.json()
+                if len(data) > 1:
+                    return {"suggestions": data[1]}
+    except Exception as e:
+        print(f"Error fetching suggestions: {e}")
+    return {"suggestions": []}
