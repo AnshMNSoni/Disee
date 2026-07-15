@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, FileText, Code2, BookOpen, Globe, ExternalLink } from 'lucide-react';
+import { Search, Loader2, FileText, Code2, BookOpen, Globe, ExternalLink, GitBranch, Video, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -14,11 +14,17 @@ function cn(...inputs) {
 
 export default function App() {
   const [query,      setQuery]      = useState('');
-  const [searchMode, setSearchMode] = useState('all');
+  const [activeTab,  setActiveTab]  = useState('all');
   const [results,    setResults]    = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading,  setIsLoading]  = useState(false);
   const [isFocused,  setIsFocused]  = useState(false);
+
+  const getSearchMode = (tab) => {
+    if (tab === 'wikipedia' || tab === 'reddit' || tab === 'youtube') return 'prose';
+    if (tab === 'stackoverflow' || tab === 'github') return 'code';
+    return 'all';
+  };
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -41,7 +47,8 @@ export default function App() {
           ? 'http://localhost:8000'
           : `${window.location.protocol}//${apiHost}`);
 
-        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}&mode=${searchMode}`);
+        const currentMode = getSearchMode(activeTab);
+        const response = await fetch(`${API_URL}/search?q=${encodeURIComponent(trimmedQuery)}&mode=${currentMode}`);
         if (!response.ok) throw new Error('Search failed');
         const data = await response.json();
         setResults(data.results || []);
@@ -55,7 +62,7 @@ export default function App() {
 
     const debounceTimer = setTimeout(fetchResults, 300);
     return () => clearTimeout(debounceTimer);
-  }, [query, searchMode]);
+  }, [query, activeTab]);
 
   const handleSearch = (e) => { e.preventDefault(); };
 
@@ -144,20 +151,23 @@ export default function App() {
           </form>
 
           {/* Filter chips */}
-          <div className="flex gap-2 mt-4 flex-row justify-between sm:justify-start items-center w-full">
+          <div className="flex gap-2 mt-4 flex-row overflow-x-auto justify-start items-center w-full no-scrollbar pb-1">
             {[
-              { id: 'all',   label: 'All',          icon: Globe },
-              { id: 'prose', label: 'Wikipedia',    icon: BookOpen },
-              { id: 'code',  label: 'StackOverflow', icon: Code2 },
+              { id: 'all',           label: 'All',           icon: Globe },
+              { id: 'wikipedia',     label: 'Wikipedia',     icon: BookOpen },
+              { id: 'stackoverflow', label: 'StackOverflow', icon: Code2 },
+              { id: 'github',        label: 'GitHub',        icon: GitBranch },
+              { id: 'reddit',        label: 'Reddit',        icon: MessageSquare },
+              { id: 'youtube',       label: 'YouTube',       icon: Video },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 id={`filter-${id}`}
                 type="button"
-                onClick={() => setSearchMode(id)}
+                onClick={() => setActiveTab(id)}
                 className={cn(
-                  'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-xl transition-all duration-300 border',
-                  searchMode === id
+                  'shrink-0 flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-xl transition-all duration-300 border',
+                  activeTab === id
                     ? 'bg-[#40628A]/20 text-[#40628A] border-[#40628A]/35 shadow-[0_0_12px_rgba(64,98,138,0.08)]'
                     : 'bg-white/40 text-slate-500 hover:bg-white/60 border-slate-300/30 hover:border-slate-300/50',
                 )}
@@ -188,15 +198,35 @@ export default function App() {
             )}
 
             {/* Empty state */}
-            {!isLoading && results.length === 0 && (
+            {!isLoading && results.filter(item => {
+              if (activeTab === 'all') return true;
+              const source = (item.source || '').toLowerCase();
+              if (activeTab === 'wikipedia') return source.includes('wikipedia');
+              if (activeTab === 'stackoverflow') return source.includes('stackoverflow');
+              if (activeTab === 'github') return source.includes('github');
+              if (activeTab === 'reddit') return source.includes('reddit');
+              if (activeTab === 'youtube') return source.includes('youtube');
+              return true;
+            }).length === 0 && (
               <div className="glass-panel flex flex-col items-center justify-center py-14 text-center px-6">
-                <p className="text-lg font-medium mb-1 text-slate-700">No results found for "{query}"</p>
-                <p className="text-sm text-slate-400">Check your spelling or try different keywords.</p>
+                <p className="text-lg font-medium mb-1 text-slate-700">
+                  No results found in {activeTab === 'all' ? 'any source' : activeTab} for "{query}"
+                </p>
+                <p className="text-sm text-slate-400">Check your spelling or try different filter tabs.</p>
               </div>
             )}
 
             {/* Result cards */}
-            {!isLoading && results.map((result, idx) => (
+            {!isLoading && results.filter(item => {
+              if (activeTab === 'all') return true;
+              const source = (item.source || '').toLowerCase();
+              if (activeTab === 'wikipedia') return source.includes('wikipedia');
+              if (activeTab === 'stackoverflow') return source.includes('stackoverflow');
+              if (activeTab === 'github') return source.includes('github');
+              if (activeTab === 'reddit') return source.includes('reddit');
+              if (activeTab === 'youtube') return source.includes('youtube');
+              return true;
+            }).map((result, idx) => (
               <motion.div
                 key={result.title + idx}
                 initial={{ opacity: 0, y: 14 }}
