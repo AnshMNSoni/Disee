@@ -124,7 +124,7 @@ export default function App() {
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               className={cn(
-                'w-full pl-12 pr-24 py-3.5 text-[1.02rem] leading-relaxed rounded-2xl outline-none transition-all duration-300',
+                'w-full pl-11 pr-20 xs:pr-24 py-3 text-[0.95rem] xs:text-[1.02rem] leading-relaxed rounded-2xl outline-none transition-all duration-300',
                 'bg-white/40 text-slate-800 placeholder-slate-400',
                 'border border-slate-300/30 hover:border-slate-300/60',
                 'focus:border-[#40628A]/50 focus:ring-2 focus:ring-[#40628A]/15',
@@ -135,16 +135,16 @@ export default function App() {
             <button
               type="submit"
               id="search-btn"
-              className="absolute inset-y-2 right-2 px-5 bg-[#40628A]/15 hover:bg-[#40628A]/25 text-[#40628A] font-medium rounded-xl transition-all active:scale-95 flex items-center justify-center border border-[#40628A]/20 z-30"
+              className="absolute inset-y-1.5 right-1.5 px-3 xs:px-5 bg-[#40628A]/15 hover:bg-[#40628A]/25 text-[#40628A] text-xs xs:text-sm font-medium rounded-xl transition-all active:scale-95 flex items-center justify-center border border-[#40628A]/20 z-30"
               style={{ opacity: query.trim() ? 1 : 0, pointerEvents: query.trim() ? 'auto' : 'none' }}
               disabled={isLoading}
             >
-              {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Search'}
+              {isLoading ? <Loader2 size={16} className="animate-spin" /> : 'Search'}
             </button>
           </form>
 
           {/* Filter chips */}
-          <div className="flex gap-2 mt-4 flex-wrap">
+          <div className="flex gap-2 mt-4 flex-row justify-between sm:justify-start items-center w-full">
             {[
               { id: 'all',   label: 'All',          icon: Globe },
               { id: 'prose', label: 'Wikipedia',    icon: BookOpen },
@@ -156,14 +156,14 @@ export default function App() {
                 type="button"
                 onClick={() => setSearchMode(id)}
                 className={cn(
-                  'flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium rounded-xl transition-all duration-300 border',
+                  'flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-xl transition-all duration-300 border',
                   searchMode === id
                     ? 'bg-[#40628A]/20 text-[#40628A] border-[#40628A]/35 shadow-[0_0_12px_rgba(64,98,138,0.08)]'
                     : 'bg-white/40 text-slate-500 hover:bg-white/60 border-slate-300/30 hover:border-slate-300/50',
                 )}
               >
-                <Icon size={13} strokeWidth={2} />
-                <span>{label}</span>
+                <Icon size={12} strokeWidth={2} className="shrink-0" />
+                <span className="truncate">{label}</span>
               </button>
             ))}
           </div>
