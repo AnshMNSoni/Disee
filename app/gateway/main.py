@@ -114,77 +114,86 @@ async def fetch_local_node_search(client, node_url, query, mode):
         print(f"Error querying local search from {node_url}: {e}")
     return []
 
+async def _fetch_dynamic_content(client: httpx.AsyncClient, q: str, mode: str) -> list:
+    if mode == "code":
+        return await fetch_stackoverflow_search(client, q)
+    elif mode == "prose":
+        return await fetch_wikipedia_search(client, q)
+    
+    # Default 'all' mode — fetch both concurrently
+    wiki_res, so_res = await asyncio.gather(
+        fetch_wikipedia_search(client, q),
+        fetch_stackoverflow_search(client, q)
+    )
+    return wiki_res + so_res
+
+async def _partition_and_distribute(client: httpx.AsyncClient, q: str, combined_results: list) -> list:
+    node_count = len(NODES)
+    chunk_size = (len(combined_results) + node_count - 1) // node_count if combined_results else 0
+    
+    chunks = []
+    for i in range(node_count):
+        if chunk_size == 0:
+            chunks.append([])
+        else:
+            chunks.append(combined_results[i * chunk_size : (i + 1) * chunk_size])
+
+    distribute_tasks = [
+        distribute_to_node(client, NODES[i], q, chunks[i])
+        for i in range(node_count)
+    ]
+    processed = await asyncio.gather(*distribute_tasks)
+    
+    merged = []
+    for r in processed:
+        merged.extend(r)
+    return merged
+
+def _deduplicate_and_sort(merged_results: list) -> list:
+    unique_merged = []
+    seen = set()
+    for item in merged_results:
+        is_dict = isinstance(item, dict)
+        item_id = item.get("title", str(item)) if is_dict else item
+        if item_id not in seen:
+            seen.add(item_id)
+            unique_merged.append(item)
+            
+    unique_merged.sort(
+        key=lambda x: x.get("score", 0.0) if isinstance(x, dict) else 0.0,
+        reverse=True
+    )
+    return unique_merged
+
 @app.get("/search")
 async def search(q: str = Query(...), mode: str = Query("all")):
     async with httpx.AsyncClient() as client:
-        # 1. Fetch dynamic content based on mode
-        #    'all' fetches both, 'prose' = Wikipedia only, 'code' = StackOverflow only
-        if mode == "code":
-            wiki_results, so_results = [], await fetch_stackoverflow_search(client, q)
-        elif mode == "prose":
-            wiki_results, so_results = await fetch_wikipedia_search(client, q), []
-        else:
-            # Default 'all' mode — fetch both concurrently
-            wiki_results, so_results = await asyncio.gather(
-                fetch_wikipedia_search(client, q),
-                fetch_stackoverflow_search(client, q)
-            )
+        # 1. Fetch dynamic external results
+        dynamic_results_task = _fetch_dynamic_content(client, q, mode)
         
-        # 2. Concurrently query all local storage nodes (uses prose index for 'all')
+        # 2. Fetch local storage results concurrently
         index_mode = "prose" if mode == "all" else mode
         local_tasks = [fetch_local_node_search(client, node_url, q, index_mode) for node_url in NODES]
         
-        # Execute local node queries concurrently
-        local_results_list = await asyncio.gather(*local_tasks)
+        dynamic_results, local_results_list = await asyncio.gather(
+            dynamic_results_task,
+            asyncio.gather(*local_tasks)
+        )
         
-        combined_results = wiki_results + so_results
-        
-        # Partition dynamic data across the available nodes for processing
-        node_count = len(NODES)
-        chunk_size = (len(combined_results) + node_count - 1) // node_count if combined_results else 0
-        
-        chunks = []
-        for i in range(node_count):
-            if chunk_size == 0:
-                chunks.append([])
-            else:
-                chunks.append(combined_results[i * chunk_size : (i + 1) * chunk_size])
+        # 3. Partition and distribute dynamic results to nodes
+        processed_dynamic_results = await _partition_and_distribute(client, q, dynamic_results)
 
-        # Distribute chunks to nodes
-        distribute_tasks = [
-            distribute_to_node(client, NODES[i], q, chunks[i])
-            for i in range(node_count)
-        ]
-        
-        processed_dynamic_results = await asyncio.gather(*distribute_tasks)
-
-    # Merge all local and dynamic results
+    # 4. Merge all results
     merged = []
     for r in local_results_list:
         merged.extend(r)
-    for r in processed_dynamic_results:
-        merged.extend(r)
+    merged.extend(processed_dynamic_results)
 
-    # Convert complex structures like dicts to sortable types to eliminate duplicates
-    unique_merged = []
-    seen = set()
-    for item in merged:
-        if isinstance(item, dict):
-            item_id = item.get("title", str(item))
-            if item_id not in seen:
-                seen.add(item_id)
-                unique_merged.append(item)
-        else:
-            if item not in seen:
-                seen.add(item)
-                unique_merged.append(item)
-
-    # Sort results by score (highest first)
-    unique_merged.sort(key=lambda x: x.get("score", 0.0) if isinstance(x, dict) else 0.0, reverse=True)
+    # 5. Deduplicate and sort by score
+    final_results = _deduplicate_and_sort(merged)
 
     return {
         "query": q,
         "mode": mode,
-        "results": unique_merged
+        "results": final_results
     }
-
