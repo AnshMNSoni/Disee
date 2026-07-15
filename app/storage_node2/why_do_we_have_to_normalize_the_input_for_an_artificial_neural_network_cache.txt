@@ -1,4 +1,0 @@
-Title: Why do we have to normalize the input for an artificial neural network?
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/4674623/why-do-we-have-to-normalize-the-input-for-an-artificial-neural-network
-Content: Tags: machine-learning, neural-network, normalization

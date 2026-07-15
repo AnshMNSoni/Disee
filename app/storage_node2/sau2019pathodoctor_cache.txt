@@ -1,4 +1,0 @@
-Title: sau2019/pathodoctor
-Source: GitHub API
-URL: https://github.com/sau2019/pathodoctor
-Content: pathodoctor, A doctor appointment system in which user can book their own appointment as per desired slot. This project is being introduced to accomplish the demand of minor project.  - Stars: 2

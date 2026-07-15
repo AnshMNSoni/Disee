@@ -1,4 +1,0 @@
-Title: What are some good resources for learning about Artificial Neural Networks?
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/478947/what-are-some-good-resources-for-learning-about-artificial-neural-networks
-Content: Tags: neural-network

@@ -1,4 +1,0 @@
-Title: nextstrain/ncov
-Source: GitHub API
-URL: https://github.com/nextstrain/ncov
-Content: Nextstrain build for SARS-CoV-2 - Stars: 1359

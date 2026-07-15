@@ -1,4 +1,0 @@
-Title: owainlewis/awesome-artificial-intelligence
-Source: GitHub API
-URL: https://github.com/owainlewis/awesome-artificial-intelligence
-Content: A curated list of Artificial Intelligence (AI) courses, books, video lectures and papers. - Stars: 15193

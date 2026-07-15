@@ -1,4 +1,0 @@
-Title: Why does HTML think “chucknorris” is a color?
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/8318911/why-does-html-think-chucknorris-is-a-color
-Content: Tags: html, browser, background-color

@@ -1,4 +1,0 @@
-Title: TarrySingh/Artificial-Intelligence-Deep-Learning-Machine-Learning-Tutorials
-Source: GitHub API
-URL: https://github.com/TarrySingh/Artificial-Intelligence-Deep-Learning-Machine-Learning-Tutorials
-Content: A comprehensive list of Deep Learning / Artificial Intelligence and Machine Learning tutorials - rapidly expanding into areas of AI/Deep Learning / Machine Vision / NLP and industry specific areas such as Climate / Energy, Automotives, Retail, Pharma, Medicine, Healthcare, Policy, Ethics and more. - Stars: 3992

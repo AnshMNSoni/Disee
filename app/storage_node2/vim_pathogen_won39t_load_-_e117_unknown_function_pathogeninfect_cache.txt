@@ -1,4 +1,0 @@
-Title: Vim Pathogen won&#39;t load - E117: Unknown function: pathogen#infect
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/13080490/vim-pathogen-wont-load-e117-unknown-function-pathogeninfect
-Content: Tags: vim, pathogen

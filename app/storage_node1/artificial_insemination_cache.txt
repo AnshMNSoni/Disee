@@ -1,4 +1,0 @@
-Title: Artificial insemination
-Source: Wikipedia API
-URL: https://en.wikipedia.org/?curid=213070
-Content: <span class="searchmatch">Artificial</span> insemination is the deliberate introduction of sperm into the cervix or uterine cavity for the purpose of achieving pregnancy through in vivo

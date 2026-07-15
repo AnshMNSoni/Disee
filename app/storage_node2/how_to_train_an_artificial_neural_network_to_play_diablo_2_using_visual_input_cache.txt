@@ -1,4 +1,0 @@
-Title: How to train an artificial neural network to play Diablo 2 using visual input?
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/6542274/how-to-train-an-artificial-neural-network-to-play-diablo-2-using-visual-input
-Content: Tags: machine-learning, computer-vision, neural-network, video-processing, reinforcement-learning

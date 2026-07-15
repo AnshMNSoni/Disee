@@ -1,4 +1,0 @@
-Title: ACHYUTANANDA-SAHOO/ARTIFICIAL-INTELLEGENCE
-Source: GitHub API
-URL: https://github.com/ACHYUTANANDA-SAHOO/ARTIFICIAL-INTELLEGENCE
-Content: Consists of programs pertaining to AI  - Stars: 0

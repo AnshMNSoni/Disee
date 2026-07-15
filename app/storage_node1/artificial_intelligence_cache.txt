@@ -1,4 +1,0 @@
-Title: Artificial intelligence
-Source: Wikipedia API
-URL: https://en.wikipedia.org/?curid=1164
-Content: <span class="searchmatch">Artificial</span> intelligence (AI) is the capability of computational systems to perform tasks typically associated with human intelligence, such as learning
