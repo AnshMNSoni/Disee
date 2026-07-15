@@ -1,5 +1,5 @@
-<div align='center'>
-    <img width="1774" height="887" alt="Disee" src="https://github.com/user-attachments/assets/5ea1045e-795d-451b-9817-44ea3dd0bee9" />
+<div style="display: flex; justify-content: center;">
+  <img src="https://github.com/user-attachments/assets/cbc15cd7-0fe3-4401-9c6e-4aaed4604503"  alt="Desi" style="max-width: 100%; height: auto;" />
 </div>
 
 # 🔍 Distributed Search Engine (DSE)
@@ -16,6 +16,9 @@ A high-performance, containerized, distributed search engine built with **FastAP
 <img width="1536" height="1024" alt="disee-gateway-worker architecture" src="https://github.com/user-attachments/assets/d970722d-5a61-4b1f-9e17-210fb76ab853" />
 <br>
 
+<img width="1536" height="1024" alt="disee-gateway-worker architecture" src="https://github.com/user-attachments/assets/d970722d-5a61-4b1f-9e17-210fb76ab853" />
+<br>
+
 The project is structured around a **Gateway-Worker** pattern. The central Gateway fetches real-time data from external APIs (Wikipedia, StackOverflow), partitions the content, and distributes it to multiple worker nodes that process and attribute the data in parallel.
 
 ### Phase 1: Single Node (Single Machine)
@@ -27,19 +30,59 @@ Introduction of the **Gateway Service**, which orchestrates search queries acros
 <img width="4575" height="2250" alt="Phase 2 Architecture" src="https://github.com/user-attachments/assets/b5ed6131-f783-42fb-9953-2f4b3630cdc6" />
 
 ### Phase 3: Static Nodes (Multiple Machine) (Currently 3 static nodes)
+### Phase 3: Static Nodes (Multiple Machine) (Currently 3 static nodes)
 The goal of Phase 3 is to achieve full distribution across multiple physical or virtual machines, implementing more resilient discovery and load balancing.
 <img width="1205" height="646" alt="Phase 3 Architecture" src="https://github.com/user-attachments/assets/e6301534-907d-4e79-bee7-03eadee51aed" />
 
-## ✨ Key Features
+## ✨ Key Features & Optimizations
 
-- **Distributed Query Aggregation**: The Gateway service fans out processed data chunks to all active worker nodes in parallel.
-- **Dynamic Multi-Source Integration**: Real-time fetching from Wikipedia and StackOverflow APIs for up-to-date information.
-- **Distributed Result Processing**: Nodes act as distributed processors, enriching and attributing dynamic content chunks.
-- **Write-Through Distributed Caching**: Workers dynamically save incoming web results as local text documents and rebuild their inverted indexes on-the-fly, reducing subsequent repeat lookups from 400ms+ to under 2ms (uses a FIFO cache eviction policy capped at 200 files per node to prevent disk inflation).
-- **Premium Minimal UI**: A Google-inspired, immersive frontend with smooth motion design, focus-aware dimming, and elegant typography.
-- **Asynchronous I/O**: Heavy use of `httpx` and `asyncio` for non-blocking concurrent node communication.
-- **Dockerized Environment**: Fully containerized setup for consistent development and deployment.
-- **FastAPI OpenAPI Integration**: Interactive API documentation available out-of-the-box.
+### 1. Dual-Stream Tokenization (Code vs. Prose)
+* **Files**: `index_services.py`
+* **Mechanism**: During startup document indexing, text content is concurrently tokenized into two distinct streams:
+  | Stream | Tokenizer | Behavior | Example |
+  | :--- | :--- | :--- | :--- |
+  | **Prose** | `tokenize_prose()` | Extracts clean alpha-numeric terms, discarding common stop words (`the`, `is`, `at`, etc.) | `"python scripting"` → `["python", "scripting"]` |
+  | **Code** | `tokenize_code()` | Retains programming syntax characters like underscores, dots, and hyphens | `"user_id str.replace"` → `["user_id", "str.replace"]` |
+* **Advantage**: Standard prose tokenizers split code elements like `ctx.execute()` into generic `ctx` and `execute` tokens, losing technical context. Keeping syntax structures intact ensures precise search matching on exact API references and variable names.
+
+### 2. Metadata-Weighted Scoring (Social Boost)
+* **Files**: `search_services.py`, `index_services.py`
+* **Mechanism**: Documents are enriched with interactive metadata (such as upvote and edit counts). Results are ranked dynamically based on this logarithmic scoring system:
+  $$\text{final\_score} = \text{text\_match\_score} \times \left(1 + \frac{\text{score}}{100 + \text{score}}\right)$$
+* **Advantage**: This ensures highly upvoted/established answers receive a logarithmic authority boost over low-quality matches, prioritizing proven solutions without letting authority overshadow query relevance.
+  * *5 upvotes* $\rightarrow$ ~5% boost
+  * *100 upvotes* $\rightarrow$ ~50% boost
+  * *10,000 upvotes* $\rightarrow$ ~99% boost (caps gracefully)
+
+### 3. Source-Aware Search Modes
+* **Files**: `gateway/main.py`, [App.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/App.jsx)
+* **Mechanism**: The user interface supports three query filters that map cleanly to targeted datasets:
+  | Mode | External APIs | Local Index |
+  | :--- | :--- | :--- |
+  | 🌐 **All** *(Default)* | Wikipedia + StackOverflow | Prose Index |
+  | 📖 **Wikipedia** | Wikipedia Only | Prose Index |
+  | 💻 **StackOverflow** | StackOverflow Only | Code Index |
+* **Advantage**: Fine-tunes performance and output quality. Conceptual queries use Wikipedia indices, whereas technical queries target code token streams from StackOverflow.
+
+### 4. Distributed Processing of External Results
+* **Files**: `gateway/main.py`
+* **Mechanism**: Real-time Wikipedia/StackOverflow responses are split into chunks and distributed asynchronously across active background worker nodes for parallel metadata enrichment and attribution.
+* **Advantage**: Simulates horizontal scaling on clusters, unloading query parsing bottlenecks from the central gateway to compute nodes.
+
+### 5. Startup Index Building
+* **Files**: `main.py`
+* **Mechanism**: Scans internal storage folders on node boot-up and automatically structures the code and prose inverted indexes in-memory (`build_index()`).
+* **Advantage**: Replaces manual index triggers; the cluster is search-ready the moment servers boot.
+
+### 6. Premium Responsive Light UI
+* **Files**: [App.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/App.jsx), [index.css](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/index.css), [LogoAnimation.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/LogoAnimation.jsx), [MatrixBackground.jsx](file:///c:/Users/Prince%20Patel/Desktop/Projects/Disee/Disee/frontend/src/MatrixBackground.jsx)
+* **Mechanism**: Features a premium light Wedgwood blue and cream theme.
+  * Includes a background canvas displaying animated colliding nodes and binary streams.
+  * Incorporates a `.webm` intro animation that plays dynamically on page load before cross-fading into the static brand logo.
+  * Uses premium glassmorphic frosted-blur overlays behind form inputs and results.
+  * Disables user-drag and selections on visual assets to preserve brand styling integrity.
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -51,91 +94,51 @@ The goal of Phase 3 is to achieve full distribution across multiple physical or 
 - **Containerization**: [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
 - **Data Sourcing**: Wikipedia API & StackOverflow (StackExchange) API.
 
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-- [Python 3.9+](https://www.python.org/downloads/) (for local development, optional).
+- [Node.js](https://nodejs.org/) (v16+) and [Python 3.9+](https://www.python.org/downloads/) (for local development).
 
 ### Quick Launch
 
-1.  **Clone/Fork the Repository**:
-    ```bash
-    git clone https://github.com/AnshMNSoni/Distributive-Search-Engine.git
-    cd Distributive-Search-Engine
-    ```
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/AnshMNSoni/Distributive-Search-Engine.git
+   cd Distributive-Search-Engine
+   ```
 
-2.  **Spin up the Cluster**:
-    ```bash
-    docker-compose up --build
-    ```
+2. **Spin up the Cluster**:
+   ```bash
+   docker-compose up --build
+   ```
 
-3.  **Access the Search API**:
-    - **Gateway Search**: `http://localhost:8000/search?q=your_keyword`
-    - **Interactive API Docs (Swagger UI)**: `http://localhost:8000/docs/`
+3. **Access the Search API**:
+   - **Gateway Search**: `http://localhost:8000/search?q=your_keyword`
+   - **Interactive API Docs (Swagger UI)**: `http://localhost:8000/docs/`
 
 4. **UI Experience**:
-    ```sh
-    cd frontend
-    ```
-    ```sh
-    npm install
-    ```
-    ```sh
-    npm run dev
-    ```
+   ```sh
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+---
 
 ## 📋 Current Scope & Roadmap
 
 - [x] Phase 1: Standalone Indexing & Search
 - [x] Phase 2: Dockerized Multi-Node Aggregation
 - [x] Phase 3: Dynamic Wikipedia & StackOverflow Integration
-- [x] Feature: Premium Google-like UI with immersive animations
-- [x] Feature: Distributed Processing Workers
+- [x] Feature: Premium Light UI with interactive collision-matrix background
+- [x] Feature: Startup Auto-indexing & Dual-Stream Tokenizers
+- [x] Feature: Logarithmic Social Boost Metadata Ranking
 - [ ] Feature: Dynamic Node Registration & Heartbeats
 - [ ] Feature: Fault-tolerant Querying (Handle node timeouts gracefully)
-
-## 📊 Performance Benchmarks
-
-To optimize query duration, the Gateway uses non-blocking asynchronous calls (`httpx` and `asyncio.gather`). The table below outlines typical empirical latencies observed in sequential vs. concurrent query routing:
-
-| Search Step | Synchronous (Sequential) Latency | Asynchronous (Concurrent) Latency |
-| :--- | :--- | :--- |
-| Wikipedia API Query | 350ms | 350ms |
-| StackOverflow API Query | 420ms | 420ms *(concurrent with Wikipedia/GitHub)* |
-| GitHub API Query | 380ms | 380ms *(concurrent with Wiki/StackOverflow)* |
-| Worker Node 1 Processing | 120ms | 120ms |
-| Worker Node 2 Processing | 150ms | 150ms *(concurrent with Node 1)* |
-| Worker Node 3 Processing | 110ms | 110ms *(concurrent with Node 1)* |
-| **Total Query Duration** | **1530ms** | **570ms (62.7% Latency Reduction)** |
-
-### Basis of Latency Calculations
-1. **Synchronous Latency**: Sum of all sequential network calls:
-   $$T_{\text{sync}} = 350\text{ms} + 420\text{ms} + 380\text{ms} + 120\text{ms} + 150\text{ms} + 110\text{ms} = 1530\text{ms}$$
-2. **Asynchronous Latency**: Calculated by parallel execution blocks:
-   * External APIs: $T_{\text{APIs}} = \max(350\text{ms}, 420\text{ms}, 380\text{ms}) = 420\text{ms}$
-   * Worker Nodes: $T_{\text{Workers}} = \max(120\text{ms}, 150\text{ms}, 110\text{ms}) = 150\text{ms}$
-   * Total async latency: $T_{\text{async}} = T_{\text{APIs}} + T_{\text{Workers}} = 420\text{ms} + 150\text{ms} = 570\text{ms}$
-
-### 📈 Concurrency Scaling: How latency savings grew from 50.4% to 62.7%
-* **Phase 1 (Wikipedia + StackOverflow only)**: The Gateway fetched from two external APIs sequentially ($1150\text{ms}$) or concurrently ($570\text{ms}$), yielding a **50.4% speedup**.
-* **Phase 2 (Adding GitHub API Search)**: We integrated GitHub search ($380\text{ms}$). Because it runs concurrently, the total parallel latency remains flat at **570ms** (since the slowest network bottleneck thread is still StackOverflow at $420\text{ms}$). Meanwhile, the hypothetical sequential execution time increases to $1530\text{ms}$. 
-
-This shifts the total cluster latency savings from **50.4% to 62.7%**. This proves a core scaling law of distributed clusters: *as long as new network queries run concurrently and complete within the duration of the slowest bottleneck thread, the system scales its data throughput without increasing overall query latency.*
-
----
-
-## ❓ Myths & Common Misconceptions
-
-* **Myth 1: "Since the backend is written in FastAPI with Docker, the cluster is automatically production-grade."**
-  * *Reality*: Docker and FastAPI provide routing and orchestration, but the system is a local development demonstration. It lacks enterprise-level elements like service meshes, dynamic cluster discovery nodes, query routers, and replication policies.
-* **Myth 2: "Dynamic search query partitioning is a form of MapReduce."**
-  * *Reality*: This is a Scatter-Gather pattern. While MapReduce performs batch splits across large datasets, the Gateway coordinates live API lookups and fans out chunk routing to worker nodes.
-* **Myth 3: "An in-memory postings dictionary is always superior to database search indexes."**
-  * *Reality*: Lookups are extremely fast ($\mathcal{O}(1)$ average), but they consume system memory and require index construction on container startup. A production search engine (like Lucene) utilizes segment caching and virtual memory to manage large datasets.
-* **Myth 4: "The database is secure since worker containers are isolated on a private Docker bridge network."**
-  * *Reality*: Isolation protects worker containers from direct internet access, but input queries must still be validated on the Gateway to prevent text injection or resource exhaustion.
 
 ---
 
