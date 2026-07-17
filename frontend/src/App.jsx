@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, FileText, Code2, BookOpen, Globe, ExternalLink, GitBranch, Video, MessageSquare, ArrowLeft, SearchX, AlertCircle } from 'lucide-react';
+import { Search, Loader2, FileText, Code2, BookOpen, Globe, ExternalLink, GitBranch, Video, MessageSquare, ArrowLeft, SearchX, AlertCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -144,14 +144,33 @@ function SearchInput({ query, setQuery, onSubmit, isLoading, suggestions, focuse
         onFocus={() => setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
         onKeyDown={handleKeyDown}
-        className="w-full pl-10 pr-20 py-2.5 text-sm leading-relaxed rounded-xl outline-none transition-all duration-300 bg-white/60 text-slate-800 placeholder-slate-400 border border-slate-300/40 hover:border-slate-300/70 focus:border-[#40628A]/50 focus:ring-2 focus:ring-[#40628A]/15 shadow-sm"
+        className="w-full pl-10 pr-16 sm:pr-28 py-2.5 text-sm leading-relaxed rounded-xl outline-none transition-all duration-300 bg-white/60 text-slate-800 placeholder-slate-400 border border-slate-300/40 hover:border-slate-300/70 focus:border-[#40628A]/50 focus:ring-2 focus:ring-[#40628A]/15 shadow-sm"
       />
-      <button type="submit" id="search-btn" disabled={isLoading || !query.trim()}
-        style={{ opacity: query.trim() ? 1 : 0, pointerEvents: query.trim() ? 'auto' : 'none' }}
-        className="absolute inset-y-1 right-1 px-3 bg-[#40628A]/15 hover:bg-[#40628A]/25 text-[#40628A] text-xs font-medium rounded-lg transition-all active:scale-95 flex items-center justify-center border border-[#40628A]/20 z-10"
-      >
-        {isLoading ? <Loader2 size={14} className="animate-spin" /> : 'Search'}
-      </button>
+      <div className="absolute inset-y-1 right-1 flex items-center gap-1.5 z-10">
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="p-1 rounded-full hover:bg-slate-200/50 text-slate-400 hover:text-slate-600 transition-all active:scale-90"
+            title="Clear search"
+          >
+            <X size={15} strokeWidth={2.5} />
+          </button>
+        )}
+        <button type="submit" id="search-btn" disabled={isLoading || !query.trim()}
+          style={{ opacity: query.trim() ? 1 : 0, pointerEvents: query.trim() ? 'auto' : 'none' }}
+          className="px-2.5 sm:px-3 h-full bg-[#40628A]/15 hover:bg-[#40628A]/25 text-[#40628A] text-xs font-medium rounded-lg transition-all active:scale-95 flex items-center justify-center border border-[#40628A]/20"
+        >
+          {isLoading ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            <>
+              <span className="hidden sm:inline">Search</span>
+              <Search size={14} className="inline sm:hidden" />
+            </>
+          )}
+        </button>
+      </div>
       <AnimatePresence>
         {showSuggestions && (
           <SuggestionsDropdown suggestions={suggestions} focusedIdx={focusedIdx}
@@ -266,36 +285,40 @@ function ResultsPage({ initialQuery, onGoHome }) {
     <div className="min-h-screen flex flex-col font-sans relative" style={{ background: '#f6f3ec' }}>
       <MatrixBackground />
 
-      {/* Sticky header — back arrow floats outside; search + tabs in a gradient-blur strip */}
+      {/* Sticky header — Google-style row-based header */}
       <div className="sticky top-0 z-30 w-full">
-        {/* Back arrow — outside the blur area */}
-        <div className="absolute left-4 sm:left-6 top-3 z-40">
-          <button onClick={onGoHome} title="Go back home"
-            className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#40628A]/10 text-slate-500 hover:text-[#40628A] transition-all active:scale-90">
-            <ArrowLeft size={18} strokeWidth={2} />
-          </button>
-        </div>
-
         {/* Content-width wrapper — uses a separate absolute blur-strip for background */}
         <div className="w-full flex justify-center">
-          <div className="relative w-full max-w-3xl mx-auto px-4 sm:px-6 pt-2 pb-8 flex flex-col items-center">
+          <div className="relative w-full max-w-3xl mx-auto px-4 sm:px-6 pt-3 pb-4 sm:pb-6 flex flex-col items-center gap-3">
             {/* The fading blur background */}
             <div className="blur-strip"></div>
 
-            {/* Logo + search bar row */}
-            <div className="flex items-center gap-3 w-full max-w-2xl px-6 sm:px-8 py-1.5 relative z-30">
-              <button onClick={onGoHome} className="shrink-0 cursor-pointer" title="Home">
-                <img src={logo} alt="Disee" className="h-9 w-auto" />
+            {/* Row 1: Back Button + Centered Logo + Spacer */}
+            <div className="flex items-center justify-between w-full relative z-30 px-2 sm:px-4">
+              {/* Back button */}
+              <button onClick={onGoHome} title="Go back home"
+                className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#40628A]/10 text-slate-500 hover:text-[#40628A] transition-all active:scale-90">
+                <ArrowLeft size={18} strokeWidth={2} />
               </button>
-              <div className="flex-1 relative">
-                <SearchInput query={query} setQuery={setQuery} onSubmit={handleSearch} isLoading={isLoading}
-                  suggestions={suggestions} focusedIdx={focusedIdx} setFocusedIdx={setFocusedIdx}
-                  showSuggestions={showSuggestions} setShowSuggestions={setShowSuggestions} autoFocus={false} />
-              </div>
+
+              {/* Centered Logo */}
+              <button onClick={onGoHome} className="cursor-pointer mx-auto absolute left-1/2 -translate-x-1/2 flex items-center justify-center" title="Home">
+                <img src={logo} alt="Disee" className="h-11 sm:h-14 w-auto" />
+              </button>
+
+              {/* Empty spacer to balance layout and keep logo centered */}
+              <div className="w-8 h-8 shrink-0 pointer-events-none" />
             </div>
 
-            {/* Filter tabs row */}
-            <div className="flex gap-2 overflow-x-auto no-scrollbar justify-center pt-1.5 relative z-10">
+            {/* Row 2: Search Bar */}
+            <div className="w-full max-w-2xl px-2 sm:px-4 relative z-30">
+              <SearchInput query={query} setQuery={setQuery} onSubmit={handleSearch} isLoading={isLoading}
+                suggestions={suggestions} focusedIdx={focusedIdx} setFocusedIdx={setFocusedIdx}
+                showSuggestions={showSuggestions} setShowSuggestions={setShowSuggestions} autoFocus={false} />
+            </div>
+
+            {/* Row 3: Filter tabs */}
+            <div className="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar justify-start sm:justify-center w-full px-4 sm:px-0 pt-0.5 relative z-10">
               {TABS.map(({ id, label, icon: Icon, color }) => {
                 const isActive = activeTab === id;
                 return (
@@ -371,11 +394,11 @@ function ResultsPage({ initialQuery, onGoHome }) {
             <motion.div key={result.title + idx}
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: Math.min(0.03 * idx, 0.3) }}
-              className="result-card group cursor-pointer p-5"
+              className="result-card group cursor-pointer p-4 sm:p-5"
               onClick={() => { if (result.url) window.open(result.url, '_blank'); }}>
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-3 sm:gap-4">
                 {/* Per-source icon */}
-                <div className="p-2.5 rounded-xl shrink-0 transition-colors"
+                <div className="p-2 sm:p-2.5 rounded-xl shrink-0 transition-colors"
                   style={{ background: meta.bg, border: `1px solid ${meta.border}`, color: meta.color }}>
                   <SourceIcon size={18} strokeWidth={1.5} />
                 </div>
