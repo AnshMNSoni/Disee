@@ -1,4 +1,0 @@
-Title: Temporarily disable some plugins using pathogen in vim.
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/4261785/temporarily-disable-some-plugins-using-pathogen-in-vim
-Content: Tags: plugins, vim

@@ -1,4 +1,0 @@
-Title: Vim + Pathogen not loading help docs
-Source: StackOverflow API
-URL: https://stackoverflow.com/questions/6970334/vim-pathogen-not-loading-help-docs
-Content: Tags: vim, pathogen

@@ -1,4 +1,0 @@
-Title: mdipietro09/DataScience_ArtificialIntelligence_Utils
-Source: GitHub API
-URL: https://github.com/mdipietro09/DataScience_ArtificialIntelligence_Utils
-Content: Examples of Data Science projects and Artificial Intelligence use-cases - Stars: 552

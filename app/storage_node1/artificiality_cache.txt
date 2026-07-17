@@ -1,4 +1,0 @@
-Title: Artificiality
-Source: Wikipedia API
-URL: https://en.wikipedia.org/?curid=18290472
-Content: <span class="searchmatch">Artificiality</span> (the state of being <span class="searchmatch">artificial</span>, anthropogenic, or man-made) is the condition of being the product of intentional human manufacture (namely
