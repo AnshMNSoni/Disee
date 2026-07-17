@@ -17,10 +17,28 @@ app.add_middleware(
 
 import os
 
-# Check environment or fallback to localhost if not in container environment
-IN_DOCKER = os.path.exists("/.dockerenv") or os.environ.get("IN_DOCKER", "false").lower() == "true"
+def _is_docker() -> bool:
+    if os.path.exists("/.dockerenv"):
+        return True
+    if os.environ.get("IN_DOCKER", "false").lower() == "true":
+        return True
+    try:
+        if os.path.exists("/proc/1/cgroup"):
+            with open("/proc/1/cgroup", "r") as f:
+                content = f.read()
+                if "docker" in content or "kubepods" in content or "containerd" in content:
+                    return True
+    except Exception:
+        pass
+    return False
 
-if IN_DOCKER:
+IN_DOCKER = _is_docker()
+
+# Allow configuring via environment variable for flexibility in non-standard setups
+NODE_URLS_ENV = os.environ.get("DISEE_NODE_URLS") or os.environ.get("NODE_URLS")
+if NODE_URLS_ENV:
+    NODES = [url.strip() for url in NODE_URLS_ENV.split(",") if url.strip()]
+elif IN_DOCKER:
     NODES = [
         "http://node1:8000/search",
         "http://node2:8000/search",
