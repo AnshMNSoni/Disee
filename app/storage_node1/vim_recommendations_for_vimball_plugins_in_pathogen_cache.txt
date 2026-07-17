@@ -1,0 +1,4 @@
+Title: Vim: Recommendations for vimball plugins in pathogen
+Source: StackOverflow API
+URL: https://stackoverflow.com/questions/3767046/vim-recommendations-for-vimball-plugins-in-pathogen
+Content: Tags: vim

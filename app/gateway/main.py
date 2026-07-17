@@ -2,8 +2,6 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import asyncio
-import xml.etree.ElementTree as ET
-import re
 
 app = FastAPI(title="Search Gateway")
 
@@ -94,90 +92,6 @@ async def fetch_github_search(client, query):
         print(f"Error calling GitHub: {e}")
     return []
 
-async def fetch_reddit_search(client, query):
-    try:
-        url = "https://www.reddit.com/search.rss"
-        params = {"q": query, "sort": "relevance", "limit": 5}
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Firefox/115.0"}
-        response = await client.get(url, params=params, headers=headers, timeout=5.0)
-        if response.status_code == 200:
-            root = ET.fromstring(response.content)
-            namespaces = {'atom': 'http://www.w3.org/2005/Atom'}
-            entries = root.findall('atom:entry', namespaces)
-            results = []
-            for entry in entries:
-                title_elem = entry.find('atom:title', namespaces)
-                link_elem = entry.find('atom:link', namespaces)
-                content_elem = entry.find('atom:content', namespaces)
-                
-                title = title_elem.text if title_elem is not None else ""
-                url = link_elem.attrib.get('href', "") if link_elem is not None else ""
-                
-                snippet = ""
-                if content_elem is not None and content_elem.text:
-                    # Clean HTML tags using re
-                    clean_text = re.sub(r'<[^>]+>', ' ', content_elem.text)
-                    # Normalize spaces
-                    clean_text = ' '.join(clean_text.split())
-                    snippet = clean_text[:200] + "..." if len(clean_text) > 200 else clean_text
-                
-                # Check if it has a subreddit mention in link
-                subreddit = "r/reddit"
-                sub_match = re.search(r'/r/([^/]+)', url)
-                if sub_match:
-                    subreddit = f"r/{sub_match.group(1)}"
-                
-                if snippet:
-                    snippet = f"[{subreddit}] {snippet}"
-                else:
-                    snippet = f"Post in {subreddit}"
-                    
-                results.append({
-                    "title": title,
-                    "snippet": snippet,
-                    "url": url,
-                    "external_source": "Reddit API"
-                })
-            return results
-    except Exception as e:
-        print(f"Error calling Reddit RSS: {e}")
-    return []
-
-async def fetch_youtube_search(client, query):
-    instances = [
-        "https://yewtu.be",
-        "https://invidious.nerdvpn.de",
-        "https://invidious.flokinet.to",
-        "https://vid.puffyan.us"
-    ]
-    for base_url in instances:
-        try:
-            url = f"{base_url}/api/v1/search"
-            params = {"q": query, "type": "video"}
-            headers = {"User-Agent": "DiseeApp/1.0"}
-            response = await client.get(url, params=params, headers=headers, timeout=5.0)
-            if response.status_code == 200:
-                items = response.json()
-                if isinstance(items, list):
-                    results = []
-                    for item in items[:5]:
-                        video_id = item.get("videoId", "")
-                        title = item.get("title", "")
-                        author = item.get("author", "")
-                        desc = item.get("description", "")
-                        snippet = f"Channel: {author} - {desc[:150]}..." if desc else f"Channel: {author}"
-                        url = f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
-                        results.append({
-                            "title": title,
-                            "snippet": snippet,
-                            "url": url,
-                            "external_source": "YouTube API"
-                        })
-                    return results
-        except Exception as e:
-            print(f"Error calling YouTube (Invidious instance {base_url}): {e}")
-    return []
-
 async def distribute_to_node(client, url, query, chunk):
     try:
         if not chunk:
@@ -202,28 +116,16 @@ async def fetch_local_node_search(client, node_url, query, mode):
 
 async def _fetch_dynamic_content(client: httpx.AsyncClient, q: str, mode: str) -> list:
     if mode == "code":
-        so_res, github_res = await asyncio.gather(
-            fetch_stackoverflow_search(client, q),
-            fetch_github_search(client, q)
-        )
-        return so_res + github_res
+        return await fetch_stackoverflow_search(client, q)
     elif mode == "prose":
-        wiki_res, reddit_res, youtube_res = await asyncio.gather(
-            fetch_wikipedia_search(client, q),
-            fetch_reddit_search(client, q),
-            fetch_youtube_search(client, q)
-        )
-        return wiki_res + reddit_res + youtube_res
+        return await fetch_wikipedia_search(client, q)
     
-    # Default 'all' mode — fetch all concurrently
-    wiki_res, so_res, github_res, reddit_res, youtube_res = await asyncio.gather(
+    # Default 'all' mode — fetch both concurrently
+    wiki_res, so_res = await asyncio.gather(
         fetch_wikipedia_search(client, q),
-        fetch_stackoverflow_search(client, q),
-        fetch_github_search(client, q),
-        fetch_reddit_search(client, q),
-        fetch_youtube_search(client, q)
+        fetch_stackoverflow_search(client, q)
     )
-    return wiki_res + so_res + github_res + reddit_res + youtube_res
+    return wiki_res + so_res
 
 async def _partition_and_distribute(client: httpx.AsyncClient, q: str, combined_results: list) -> list:
     node_count = len(NODES)
@@ -295,18 +197,3 @@ async def search(q: str = Query(...), mode: str = Query("all")):
         "mode": mode,
         "results": final_results
     }
-
-@app.get("/suggestions")
-async def get_suggestions(q: str = Query(...)):
-    try:
-        async with httpx.AsyncClient() as client:
-            url = "https://suggestqueries.google.com/complete/search"
-            params = {"client": "firefox", "q": q}
-            response = await client.get(url, params=params, timeout=2.0)
-            if response.status_code == 200:
-                data = response.json()
-                if len(data) > 1:
-                    return {"suggestions": data[1]}
-    except Exception as e:
-        print(f"Error fetching suggestions: {e}")
-    return {"suggestions": []}
