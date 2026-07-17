@@ -7,6 +7,7 @@ services:
     container_name: node1
     environment:
       - NODE_ID=node1
+      - IN_DOCKER=true
     volumes:
       - ./app:/app/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -19,6 +20,7 @@ services:
     container_name: node2
     environment:
       - NODE_ID=node2
+      - IN_DOCKER=true
     volumes:
       - ./app:/app/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -31,6 +33,7 @@ services:
     container_name: node3
     environment:
       - NODE_ID=node3
+      - IN_DOCKER=true
     volumes:
       - ./app:/app/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -41,6 +44,8 @@ services:
   gateway:
     build: .
     container_name: gateway
+    environment:
+      - IN_DOCKER=true
     volumes:
       - ./app:/app/app
     command: uvicorn app.gateway.main:app --host 0.0.0.0 --port 8000 --reload
