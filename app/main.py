@@ -16,6 +16,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "Disee Search Engine"}
+
 @app.on_event("startup")
 def startup_event():
     print("Node startup: Ready to process queries...")
