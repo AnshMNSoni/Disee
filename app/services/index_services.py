@@ -2,6 +2,7 @@ import os
 import re
 import json
 from collections import defaultdict
+from pathlib import Path
 
 # Global advanced index structure
 # Format: { stream_type: { word: { filename: frequency } } }
@@ -14,12 +15,21 @@ INVERTED_INDEX = {
 # Format: { filename: { "score": int, "links": set() } }
 METADATA_STORE = {}
 
+# Resolve storage paths relative to the project's `app/` directory,
+# so they work regardless of the current working directory.
+_APP_DIR = Path(__file__).resolve().parent.parent  # …/app/
+
 NODE_ID = os.getenv("NODE_ID", "node1")
 STORAGE_MAP = {
-    "node1": "app/storage_node1",
-    "node2": "app/storage_node2",
-    "node3": "app/storage_node3",
+    "node1": str(_APP_DIR / "storage_node1"),
+    "node2": str(_APP_DIR / "storage_node2"),
+    "node3": str(_APP_DIR / "storage_node3"),
 }
+
+# Ensure storage directories exist at startup
+for _path in STORAGE_MAP.values():
+    os.makedirs(_path, exist_ok=True)
+
 STORAGE_PATH = STORAGE_MAP[NODE_ID]
 
 STOP_WORDS = {"the", "is", "at", "which", "on", "and", "a", "an", "to", "in", "of", "for", "it", "that", "this"}
