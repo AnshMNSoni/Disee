@@ -9,10 +9,23 @@ from sklearn.feature_extraction.text import CountVectorizer
 # --- ADD THESE IMPORTS TO THE TOP OF YOUR FILE ---
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
+from pathlib import Path
+
+# Resolve paths relative to this file's directory (app/)
+_APP_DIR = Path(__file__).resolve().parent
 
 # 1. Data Collection and Metric Calculation
-os.makedirs("data_interpretation", exist_ok=True)
-storage_paths = ["storage_node1", "storage_node2", "storage_node3"]
+os.makedirs(str(_APP_DIR / "data_interpretation"), exist_ok=True)
+storage_paths = [
+    str(_APP_DIR / "storage_node1"),
+    str(_APP_DIR / "storage_node2"),
+    str(_APP_DIR / "storage_node3"),
+]
+
+# Ensure storage directories exist
+for _sp in storage_paths:
+    os.makedirs(_sp, exist_ok=True)
+
 data_list = []
 
 stopwords_set = {"the", "a", "of", "and", "in", "to", "is", "for", "on", "with", "as", "by"}
@@ -46,7 +59,7 @@ for storage_path in storage_paths:
             stopword_ratio = stopword_count / word_count if word_count > 0 else 0
             
             data_list.append({
-                "node": storage_path.replace('storage_', ''),
+                "node": Path(storage_path).name.replace('storage_', ''),
                 "filename": filename.replace('_test.txt', ''),
                 "word_count": word_count,
                 "unique_word_count": unique_word_count,
