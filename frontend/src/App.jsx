@@ -14,9 +14,8 @@ function getApiUrl() {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   if (isLocal) return 'http://localhost:8000';
-  const h = window.location.hostname;
-  const apiHost = h.startsWith('api.') ? h : 'api.' + h.replace(/^www\./, '');
-  return window.location.protocol + '//' + apiHost;
+  // Production: backend is deployed at disee.onrender.com
+  return 'https://disee.onrender.com';
 }
 
 const TABS = [

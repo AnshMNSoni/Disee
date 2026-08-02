@@ -9,6 +9,8 @@ app.add_middleware(
     allow_origins=[
         "https://disee.xyz",
         "https://www.disee.xyz",
+        "https://diseeee.onrender.com",
+        "http://localhost:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
