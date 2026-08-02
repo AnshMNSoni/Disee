@@ -49,14 +49,19 @@ function getSourceMeta(source) {
   return SOURCE_META.default;
 }
 
-function highlightQuery(html, query) {
-  if (!html || !query || !query.trim()) return html || '';
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function highlightQuery(text, query) {
+  const safe = escapeHtml(text || '');
+  if (!query || !query.trim()) return safe;
   try {
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = new RegExp(`(${escaped})`, 'gi');
-    return html.replace(re, '<mark>$1</mark>');
+    return safe.replace(re, '<mark>$1</mark>');
   } catch {
-    return html;
+    return safe;
   }
 }
 
