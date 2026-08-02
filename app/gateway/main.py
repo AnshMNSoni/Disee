@@ -15,6 +15,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "Disee Search Gateway"}
+
 import os
 
 def _is_docker() -> bool:
@@ -33,11 +37,15 @@ def _is_docker() -> bool:
     return False
 
 IN_DOCKER = _is_docker()
+IS_RENDER = bool(os.environ.get("RENDER"))
 
 # Allow configuring via environment variable for flexibility in non-standard setups
 NODE_URLS_ENV = os.environ.get("DISEE_NODE_URLS") or os.environ.get("NODE_URLS")
 if NODE_URLS_ENV:
     NODES = [url.strip() for url in NODE_URLS_ENV.split(",") if url.strip()]
+elif IS_RENDER:
+    # On Render (single service), no separate node containers are available
+    NODES = []
 elif IN_DOCKER:
     NODES = [
         "http://node1:8000/search",
@@ -285,25 +293,27 @@ def _deduplicate_and_sort(merged_results: list) -> list:
 async def search(q: str = Query(...), mode: str = Query("all")):
     async with httpx.AsyncClient() as client:
         # 1. Fetch dynamic external results
-        dynamic_results_task = _fetch_dynamic_content(client, q, mode)
-        
-        # 2. Fetch local storage results concurrently
-        index_mode = "prose" if mode == "all" else mode
-        local_tasks = [fetch_local_node_search(client, node_url, q, index_mode) for node_url in NODES]
-        
-        dynamic_results, local_results_list = await asyncio.gather(
-            dynamic_results_task,
-            asyncio.gather(*local_tasks)
-        )
-        
-        # 3. Partition and distribute dynamic results to nodes
-        processed_dynamic_results = await _partition_and_distribute(client, q, dynamic_results)
+        dynamic_results = await _fetch_dynamic_content(client, q, mode)
 
-    # 4. Merge all results
-    merged = []
-    for r in local_results_list:
-        merged.extend(r)
-    merged.extend(processed_dynamic_results)
+        if NODES:
+            # Multi-node mode (Docker Compose / local dev)
+            # 2. Fetch local storage results concurrently
+            index_mode = "prose" if mode == "all" else mode
+            local_tasks = [fetch_local_node_search(client, node_url, q, index_mode) for node_url in NODES]
+            local_results_list = await asyncio.gather(*local_tasks)
+
+            # 3. Partition and distribute dynamic results to nodes for processing
+            processed_dynamic_results = await _partition_and_distribute(client, q, dynamic_results)
+
+            # 4. Merge all results
+            merged = []
+            for r in local_results_list:
+                merged.extend(r)
+            merged.extend(processed_dynamic_results)
+        else:
+            # Single-service mode (Render) — no nodes available,
+            # return external API results directly
+            merged = dynamic_results
 
     # 5. Deduplicate and sort by score
     final_results = _deduplicate_and_sort(merged)
